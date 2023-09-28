@@ -205,9 +205,9 @@ export function getPayPalDomain() {
         }
 
         // eslint-disable-next-line security/detect-unsafe-regex
-        if (window.location.origin.match(/\.paypal\.com(:\d+)?$/)) {
-            return window.location.origin;
-        }
+        // if (window.location.origin.match(/\.paypal\.com(:\d+)?$/)) {
+        //     return window.location.origin;
+        // }
     }
 
     if (__MESSAGES__.__TARGET__ === 'SDK') {

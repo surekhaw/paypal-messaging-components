@@ -86,15 +86,15 @@ module.exports = (env = {}) => {
                     vars: {
                         ...globals(env),
                         __PROTOCOL__: PROTOCOL,
-                        __HOST__: `${HOSTNAME}:${PORT}`,
-                        __SDK_HOST__: `${HOSTNAME}:${PORT}`,
-                        __PORT__: PORT,
+                        __HOST__: `${HOSTNAME}:${8443}`,
+                        __SDK_HOST__: `${HOSTNAME}:${8443}`,
+                        __PORT__: 8443,
                         __PATH__: `/${FILE_NAME}.js`,
                         __NAMESPACE__: 'paypal',
                         __VERSION__: '1.0.55',
                         __COMPONENTS__: ['messages'],
-                        __PAYPAL_DOMAIN__: `${PROTOCOL}://${HOSTNAME}:${PORT}`,
-                        __PAYPAL_API_DOMAIN__: `${PROTOCOL}://${HOSTNAME}:${PORT}`
+                        __PAYPAL_DOMAIN__: `${PROTOCOL}://${HOSTNAME}:${8443}`,
+                        __PAYPAL_API_DOMAIN__: `${PROTOCOL}://${HOSTNAME}:${8443}`
                     }
                 });
         }

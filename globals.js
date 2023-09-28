@@ -6,6 +6,11 @@ const { version } = require('./package.json');
 const PORT = process.env.PORT || 8080;
 
 module.exports = (env = { TARGET: 'sdk' }) => ({
+    __MESSAGING_GLOBALS__: {
+        merchantProfile: {
+            hash: 'abc'
+        }
+    },
     __DISABLE_SET_COOKIE__: false,
     __PAYPAL_DOMAIN__: 'https://www.paypal.com',
     __ZOID__: {
@@ -30,7 +35,8 @@ module.exports = (env = { TARGET: 'sdk' }) => ({
         __TEST_ENV__: env.TEST_ENV,
         __DEV_TOUCHPOINT__: env.DEV_TOUCHPOINT,
         __DOMAIN__: {
-            __LOCAL__: `https://localhost.paypal.com:${PORT}`,
+            // __LOCAL__: `https://localhost.paypal.com:${PORT}`,
+            __LOCAL__: `https://localhost.paypal.com:${8443}`,
             __SANDBOX__: 'https://www.sandbox.paypal.com',
             __PRODUCTION__: 'https://www.paypal.com'
         },
