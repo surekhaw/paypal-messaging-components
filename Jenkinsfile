@@ -1,12 +1,12 @@
 void deployAssetsForEachEnv(env) {
     // Check if commit message contains a specific string to skip the stage
-    if (GIT_COMMIT_MESSAGE.contains('chore(release)')) {
-        sh '''
-            echo Deploying $env
-            make publish
-            git reset --hard HEAD
-        '''    
-    }
+    // if (GIT_COMMIT_MESSAGE.contains('chore(release)')) {
+    //     sh '''
+    //         echo Deploying $env
+    //         make publish
+    //         git reset --hard HEAD
+    //     '''    
+    // }
     return
 }
 
@@ -16,7 +16,7 @@ pipeline {
     }
 
     tools {
-        nodejs 'Node14'
+        nodejs '14'
     }
 
     // STAGE_TAG will be {branch_name}_{timestamp}
