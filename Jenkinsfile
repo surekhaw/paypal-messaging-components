@@ -1,3 +1,11 @@
+void deployAssetsForEachEnv(env) {
+    sh '''
+        echo Deploying $env
+        make publish
+        git reset --hard HEAD
+    '''
+}
+
 pipeline {
     agent {
         label 'mesos'
@@ -35,7 +43,8 @@ pipeline {
         stage('Stage Tag') {
             when {
                 not {
-                    branch 'release'
+                    // branch 'release'
+                    branch 'jenkinsTest'
                 }
             }
             steps {
@@ -48,20 +57,58 @@ pipeline {
             }
         }
 
-        // For release, stage existing build assets and send notification
-        stage('Deploy') {
+        // For release, deploy existing build assets
+        stage('Deploy Stage') {
             when {
-                branch 'release'
+                // branch 'release'
+                branch 'jenkinsTest'
             }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
-                    sh '''
-                        OUTPUT=$(web stage --json --tag $STAGE_TAG)
-                        web notify $STAGE_TAG
-                    '''
+                script {
+                    dir('/dist/bizcomponents/"sandbox"') {
+                        deleteDir()
+                    }
+                    dir('/dist/bizcomponents/"js"') {
+                        deleteDir()
+                    }
+                    deployAssetsForEachEnv('stage')
                 }
             }
-        }
+        },
+        stage('Deploy Sandbox') {
+            when {
+                // branch 'release'
+                branch 'jenkinsTest'
+            }
+            steps {
+                script {
+                    dir('/dist/bizcomponents/"stage"') {
+                        deleteDir()
+                    }
+                    dir('/dist/bizcomponents/"js"') {
+                        deleteDir()
+                    }
+                    deployAssetsForEachEnv('sandbox')
+                }
+            }
+        },
+        stage('Deploy Production') {
+            when {
+                // branch 'release'
+                branch 'jenkinsTest'
+            }
+            steps {
+                script {
+                    dir('/dist/bizcomponents/"stage"') {
+                        deleteDir()
+                    }
+                    dir('/dist/bizcomponents/"sandbox"') {
+                        deleteDir()
+                    }
+                    deployAssetsForEachEnv('production')
+                }
+            }
+        },
     }
 
     // Send email notification
