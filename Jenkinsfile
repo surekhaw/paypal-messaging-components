@@ -1,9 +1,13 @@
 void deployAssetsForEachEnv(env) {
-    sh '''
-        echo Deploying $env
-        make publish
-        git reset --hard HEAD
-    '''
+    // Check if commit message contains a specific string to skip the stage
+    if (GIT_COMMIT_MESSAGE.contains('chore(release)')) {
+        sh '''
+            echo Deploying $env
+            make publish
+            git reset --hard HEAD
+        '''    
+    }
+    return
 }
 
 pipeline {
@@ -65,16 +69,16 @@ pipeline {
             }
             steps {
                 script {
-                    dir('/dist/bizcomponents/"sandbox"') {
+                    dir('/dist/bizcomponents/sandbox') {
                         deleteDir()
                     }
-                    dir('/dist/bizcomponents/"js"') {
+                    dir('/dist/bizcomponents/js') {
                         deleteDir()
                     }
                     deployAssetsForEachEnv('stage')
                 }
             }
-        },
+        }
         stage('Deploy Sandbox') {
             when {
                 // branch 'release'
@@ -82,16 +86,16 @@ pipeline {
             }
             steps {
                 script {
-                    dir('/dist/bizcomponents/"stage"') {
+                    dir('/dist/bizcomponents/stage') {
                         deleteDir()
                     }
-                    dir('/dist/bizcomponents/"js"') {
+                    dir('/dist/bizcomponents/js') {
                         deleteDir()
                     }
                     deployAssetsForEachEnv('sandbox')
                 }
             }
-        },
+        }
         stage('Deploy Production') {
             when {
                 // branch 'release'
@@ -99,16 +103,16 @@ pipeline {
             }
             steps {
                 script {
-                    dir('/dist/bizcomponents/"stage"') {
+                    dir('/dist/bizcomponents/stage') {
                         deleteDir()
                     }
-                    dir('/dist/bizcomponents/"sandbox"') {
+                    dir('/dist/bizcomponents/sandbox') {
                         deleteDir()
                     }
                     deployAssetsForEachEnv('production')
                 }
             }
-        },
+        }
     }
 
     // Send email notification
