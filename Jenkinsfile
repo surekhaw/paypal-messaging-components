@@ -17,7 +17,7 @@ pipeline {
     }
 
     tools {
-        nodejs '16'
+        nodejs 'Node16'
     }
 
     // STAGE_TAG will be {branch_name}_{timestamp}
