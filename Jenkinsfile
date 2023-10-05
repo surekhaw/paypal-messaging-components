@@ -82,9 +82,15 @@ pipeline {
                     //     make publish
                     //     git checkout -- dist
                     // '''    
+                    if (GIT_COMMIT_MESSAGE.contains('test')) {
+                        sh '''
+                            echo test conditional statement
+                        '''
+                    }
                     sh '''
                         echo building stage
-                        tar czf stage-package-$BUILD_NUMBER.tar.tgz ./dis/bizcomponents/stage
+                        rm -rf stage-package-*.tar.tgz
+                        tar czf stage-package-$BUILD_NUMBER.tar.tgz ./dist/bizcomponents/stage
                     '''
                 }
             }
