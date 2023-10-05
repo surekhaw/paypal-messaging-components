@@ -7,6 +7,7 @@ void deployAssetsForEachEnv(env) {
     //         git reset --hard HEAD
     //     '''    
     // }
+    echo deploy $env
     return
 }
 
@@ -16,7 +17,7 @@ pipeline {
     }
 
     tools {
-        nodejs '14'
+        nodejs '16'
     }
 
     // STAGE_TAG will be {branch_name}_{timestamp}
