@@ -76,44 +76,49 @@ pipeline {
                     dir('/dist/bizcomponents/js') {
                         deleteDir()
                     }
-                    deployAssetsForEachEnv('stage')
+                    // deployAssetsForEachEnv('stage')
+                    sh '''
+                        echo Deploying stage
+                        make publish
+                        git reset --hard HEAD
+                    '''    
                 }
             }
         }
-        stage('Deploy Sandbox') {
-            when {
-                // branch 'release'
-                branch 'jenkinsTest'
-            }
-            steps {
-                script {
-                    dir('/dist/bizcomponents/stage') {
-                        deleteDir()
-                    }
-                    dir('/dist/bizcomponents/js') {
-                        deleteDir()
-                    }
-                    deployAssetsForEachEnv('sandbox')
-                }
-            }
-        }
-        stage('Deploy Production') {
-            when {
-                // branch 'release'
-                branch 'jenkinsTest'
-            }
-            steps {
-                script {
-                    dir('/dist/bizcomponents/stage') {
-                        deleteDir()
-                    }
-                    dir('/dist/bizcomponents/sandbox') {
-                        deleteDir()
-                    }
-                    deployAssetsForEachEnv('production')
-                }
-            }
-        }
+        // stage('Deploy Sandbox') {
+        //     when {
+        //         // branch 'release'
+        //         branch 'jenkinsTest'
+        //     }
+        //     steps {
+        //         script {
+        //             dir('/dist/bizcomponents/stage') {
+        //                 deleteDir()
+        //             }
+        //             dir('/dist/bizcomponents/js') {
+        //                 deleteDir()
+        //             }
+        //             deployAssetsForEachEnv('sandbox')
+        //         }
+        //     }
+        // }
+        // stage('Deploy Production') {
+        //     when {
+        //         // branch 'release'
+        //         branch 'jenkinsTest'
+        //     }
+        //     steps {
+        //         script {
+        //             dir('/dist/bizcomponents/stage') {
+        //                 deleteDir()
+        //             }
+        //             dir('/dist/bizcomponents/sandbox') {
+        //                 deleteDir()
+        //             }
+        //             deployAssetsForEachEnv('production')
+        //         }
+        //     }
+        // }
     }
 
     // Send email notification
