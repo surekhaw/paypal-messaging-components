@@ -63,29 +63,33 @@ pipeline {
         }
 
         // For release, deploy existing build assets
-        stage('Deploy Stage') {
+        stage('Build Stage') {
             when {
                 // branch 'release'
                 branch 'jenkinsTest'
             }
             steps {
                 script {
-                    dir('/dist/bizcomponents/sandbox') {
-                        deleteDir()
-                    }
-                    dir('/dist/bizcomponents/js') {
-                        deleteDir()
-                    }
+                    // dir('./dist/bizcomponents/sandbox') {
+                    //     deleteDir()
+                    // }
+                    // dir('./dist/bizcomponents/js') {
+                    //     deleteDir()
+                    // }
                     // deployAssetsForEachEnv('stage')
+                    // sh '''
+                    //     echo Deploying stage
+                    //     make publish
+                    //     git checkout -- dist
+                    // '''    
                     sh '''
-                        echo Deploying stage
-                        make publish
-                        git reset --hard HEAD
-                    '''    
+                        echo building stage
+                        tar czf stage-package-$BUILD_NUMBER.tar.tgz ./dis/bizcomponents/stage
+                    '''
                 }
             }
         }
-        // stage('Deploy Sandbox') {
+        // stage('Build Sandbox') {
         //     when {
         //         // branch 'release'
         //         branch 'jenkinsTest'
@@ -102,7 +106,7 @@ pipeline {
         //         }
         //     }
         // }
-        // stage('Deploy Production') {
+        // stage('Build Production') {
         //     when {
         //         // branch 'release'
         //         branch 'jenkinsTest'
