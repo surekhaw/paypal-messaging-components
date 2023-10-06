@@ -65,15 +65,18 @@ pipeline {
                             deleteDir()
                         }
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
-                            sh '''
-                                output=$(web stage --json)
-                                echo "$output"
-                                bundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
-                                echo "$bundleId"
-                                // web notify "$bundleId"
-                                git checkout -- dist
-                            '''
+                           sh '''
+                            npm run stage
+                            bundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
+                            echo "$bundleId"
+                            git checkout -- dist
+                        '''
                         }
+                        // sh '''
+                        //         output=$(web stage --tag stage_$BUILD_NUMBER)
+                        //         echo "$output"
+                        //         web notify "$bundleId"
+                        //     '''
                     }
                     sh '''
                         echo bundle stage else
