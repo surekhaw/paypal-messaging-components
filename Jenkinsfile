@@ -58,10 +58,11 @@ pipeline {
             steps {
                 script {
                     if (GIT_COMMIT_MESSAGE.contains('test')) {
-                        dir('/dist/bizcomponents') {
-                            // deleteDir()
-                            sh 'rmdir sandbox'
-                            sh 'rmdir js'
+                        dir('dist/bizcomponents/sandbox') {
+                            deleteDir()
+                        }
+                        dir('dist/bizcomponents/js') {
+                            deleteDir()
                         }
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
