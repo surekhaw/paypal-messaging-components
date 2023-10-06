@@ -59,18 +59,20 @@ pipeline {
                 script {
                     if (GIT_COMMIT_MESSAGE.contains('test')) {
                         dir('/dist/bizcomponents/sandbox') {
-                            deleteDir()
+                            // deleteDir()
+                            sh 'rmdir ./dist/bizcomponents/sandbox'
                         }
                         dir('/dist/bizcomponents/js') {
-                            deleteDir()
+                            // deleteDir()
+                            sh 'rmdir ./dist/bizcomponents/js'
                         }
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
-                            npm run stage
-                            bundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
-                            echo "$bundleId"
-                            git checkout -- dist
-                        '''
+                                web stage
+                                bundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
+                                echo "$bundleId"
+                                git checkout -- dist
+                           '''
                         }
                         // sh '''
                         //         output=$(web stage --tag stage_$BUILD_NUMBER)
