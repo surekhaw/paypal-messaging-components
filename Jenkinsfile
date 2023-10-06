@@ -67,8 +67,6 @@ pipeline {
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
                                 web stage
-                                bundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
-                                echo "$bundleId"
                                 git checkout -- dist
                            '''
                         }
@@ -101,8 +99,6 @@ pipeline {
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
                                 web stage
-                                bundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
-                                echo "$bundleId"
                                 git checkout -- dist
                            '''
                         }
@@ -135,8 +131,6 @@ pipeline {
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
                                 web stage
-                                bundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
-                                echo "$bundleId"
                                 git checkout -- dist
                            '''
                         }
