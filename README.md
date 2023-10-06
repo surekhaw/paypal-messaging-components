@@ -56,6 +56,8 @@ The command you'll most likely need to use is
 npm run build -- -t stage-tag-name -s test-environment-link
 ```
 
+1
+
 ## Scripts
 
 -   `build`
