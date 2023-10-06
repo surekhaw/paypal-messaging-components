@@ -84,40 +84,74 @@ pipeline {
                 }
             }
         }
-        // stage('Build Sandbox') {
-        //     when {
-        //         // branch 'release'
-        //         branch 'jenkinsTest'
-        //     }
-        //     steps {
-        //         script {
-        //             dir('/dist/bizcomponents/stage') {
-        //                 deleteDir()
-        //             }
-        //             dir('/dist/bizcomponents/js') {
-        //                 deleteDir()
-        //             }
-        //             deployAssetsForEachEnv('sandbox')
-        //         }
-        //     }
-        // }
-        // stage('Build Production') {
-        //     when {
-        //         // branch 'release'
-        //         branch 'jenkinsTest'
-        //     }
-        //     steps {
-        //         script {
-        //             dir('/dist/bizcomponents/stage') {
-        //                 deleteDir()
-        //             }
-        //             dir('/dist/bizcomponents/sandbox') {
-        //                 deleteDir()
-        //             }
-        //             deployAssetsForEachEnv('production')
-        //         }
-        //     }
-        // }
+        stage('Bundle Sandbox') {
+            when {
+                // branch 'release'
+                branch 'jenkinsTest'
+            }
+            steps {
+                script {
+                    if (GIT_COMMIT_MESSAGE.contains('test')) {
+                        dir('dist/bizcomponents/stage') {
+                            deleteDir()
+                        }
+                        dir('dist/bizcomponents/js') {
+                            deleteDir()
+                        }
+                        withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
+                           sh '''
+                                web stage
+                                bundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
+                                echo "$bundleId"
+                                git checkout -- dist
+                           '''
+                        }
+                        // sh '''
+                        //         output=$(web stage --tag stage_$BUILD_NUMBER)
+                        //         echo "$output"
+                        //         web notify "$bundleId"
+                        //     '''
+                    }
+                    sh '''
+                        echo bundle stage else
+                    '''
+                }
+            }
+        }
+        stage('Build Production') {
+            when {
+                // branch 'release'
+                branch 'jenkinsTest'
+            }
+            steps {
+                script {
+                    if (GIT_COMMIT_MESSAGE.contains('test')) {
+                        dir('dist/bizcomponents/stage') {
+                            deleteDir()
+                        }
+                        dir('dist/bizcomponents/sandbox') {
+                            deleteDir()
+                        }
+                        withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
+                           sh '''
+                                web stage
+                                bundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
+                                echo "$bundleId"
+                                git checkout -- dist
+                           '''
+                        }
+                        // sh '''
+                        //         output=$(web stage --tag stage_$BUILD_NUMBER)
+                        //         echo "$output"
+                        //         web notify "$bundleId"
+                        //     '''
+                    }
+                    sh '''
+                        echo bundle stage else
+                    '''
+                }
+            }
+        }
     }
 
     // Send email notification
