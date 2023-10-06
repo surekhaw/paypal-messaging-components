@@ -1,16 +1,3 @@
-void deployAssetsForEachEnv(env) {
-    // Check if commit message contains a specific string to skip the stage
-    // if (GIT_COMMIT_MESSAGE.contains('chore(release)')) {
-    //     sh '''
-    //         echo Deploying $env
-    //         make publish
-    //         git reset --hard HEAD
-    //     '''    
-    // }
-    echo deploy $env
-    return
-}
-
 pipeline {
     agent {
         label 'mesos'
@@ -63,34 +50,33 @@ pipeline {
         }
 
         // For release, deploy existing build assets
-        stage('Build Stage') {
+        stage('Bundle Stage') {
             when {
                 // branch 'release'
                 branch 'jenkinsTest'
             }
             steps {
                 script {
-                    // dir('./dist/bizcomponents/sandbox') {
-                    //     deleteDir()
-                    // }
-                    // dir('./dist/bizcomponents/js') {
-                    //     deleteDir()
-                    // }
-                    // deployAssetsForEachEnv('stage')
-                    // sh '''
-                    //     echo Deploying stage
-                    //     make publish
-                    //     git checkout -- dist
-                    // '''    
                     if (GIT_COMMIT_MESSAGE.contains('test')) {
-                        sh '''
-                            echo test conditional statement
-                        '''
+                        dir('/dist/bizcomponents/sandbox') {
+                            deleteDir()
+                        }
+                        dir('/dist/bizcomponents/js') {
+                            deleteDir()
+                        }
+                        withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
+                            sh '''
+                                output=$(web stage --json)
+                                echo "$output"
+                                bundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
+                                echo "$bundleId"
+                                // web notify "$bundleId"
+                                git checkout -- dist
+                            '''
+                        }
                     }
                     sh '''
-                        echo building stage
-                        rm -rf stage-package-*.tar.tgz
-                        tar czf stage-package-$BUILD_NUMBER.tar.tgz ./dist/bizcomponents/stage
+                        echo bundle stage else
                     '''
                 }
             }
