@@ -58,14 +58,12 @@ pipeline {
             steps {
                 script {
                     if (GIT_COMMIT_MESSAGE.contains('test')) {
-                        echo before
                         sh 'tree'
                         dir('/dist/bizcomponents') {
                             // deleteDir()
                             sh 'rmdir ./sandbox'
                             sh 'rmdir ./js'
                         }
-                        echo after dir
                         sh 'tree'
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
@@ -75,7 +73,6 @@ pipeline {
                                 git checkout -- dist
                            '''
                         }
-                        echo aftr bundle
                         sh 'tree'
                         // sh '''
                         //         output=$(web stage --tag stage_$BUILD_NUMBER)
