@@ -68,9 +68,9 @@ pipeline {
                            sh '''
                                 output=$(web stage --json)
                                 echo "$output"
-                                stageBundleId=(node -e JSON.parse($output).id)
+                                stageBundleId=(node -e 'JSON.parse(${output}).id')
                                 echo "$stageBundleId"
-                                stageBundleIdURL=(node -e JSON.parse($output).content)
+                                stageBundleIdURL=(node -e 'JSON.parse(${output}).content')
                                 echo $stageBundleIdURL
                                 web notify "$stageBundleId"
                                 git checkout -- dist
