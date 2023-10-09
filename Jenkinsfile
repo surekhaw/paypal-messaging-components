@@ -99,6 +99,7 @@ pipeline {
                            '''
                         }
                     }
+                    sh '${GIT_COMMIT_MESSAGE}'
                 }
             }
         }
@@ -109,7 +110,7 @@ pipeline {
             }
             steps {
                 script {
-                    if (GIT_COMMIT_MESSAGE.contains('test')) {
+                    if (GIT_COMMIT_MESSAGE.contains('chore(release):')) {
                         dir('dist/bizcomponents/stage') {
                             deleteDir()
                         }
