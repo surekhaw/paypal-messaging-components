@@ -66,19 +66,21 @@ pipeline {
                         }
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
-                                output=$(web stage --tag stage_$BUILD_NUMBER)
+                                output=$(web stage)
                                 echo "$output"
-                                bundleId=$(node -e 'JSON.parse(process.argv.slice(1))' "$output")
+                                bundleId=$(node -e 'JSON.parse(process.argv.slice(1).id)' "$output")
                                 echo "$bundleId"
                                 web notify "$bundleId"
                                 git checkout -- dist
                            '''
                         }
                         // sh '''
+                        // set +x - // hide console output
                         //         output=$(web stage --tag stage_$BUILD_NUMBER)
                         //         echo "$output"
                         // bundleLog=$($output =~ /(*:[ ]*ok=([0).trim()
                         //         bundleId=$bundleLog.split(' ').pop()
+                        // set -x // resume console output
                         //     '''
                     }
                     sh '''
