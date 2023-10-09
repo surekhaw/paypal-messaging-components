@@ -67,27 +67,12 @@ pipeline {
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
                                 output=$(web stage --json)
-                                echo "$output"
                                 stageBundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
-                                echo "$stageBundleId"
-                                stageBundleIdURL=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).content)' "$output")
-                                echo $stageBundleIdURL
                                 web notify "$stageBundleId"
                                 git checkout -- dist
                            '''
                         }
-                        // sh '''
-                        // set +x - // hide console output
-                        //         output=$(web stage --tag stage_$BUILD_NUMBER)
-                        //         echo "$output"
-                        // bundleLog=$($output =~ /(*:[ ]*ok=([0).trim()
-                        //         bundleId=$bundleLog.split(' ').pop()
-                        // set -x // resume console output
-                        //     '''
                     }
-                    sh '''
-                        echo bundle stage else
-                    '''
                 }
             }
         }
@@ -107,19 +92,13 @@ pipeline {
                         }
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
-                                web stage
+                                output=$(web stage --json)
+                                sandboxBundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
+                                web notify "$sandboxBundleId"
                                 git checkout -- dist
                            '''
                         }
-                        // sh '''
-                        //         output=$(web stage --tag stage_$BUILD_NUMBER)
-                        //         echo "$output"
-                        //         web notify "$bundleId"
-                        //     '''
                     }
-                    sh '''
-                        echo bundle stage else
-                    '''
                 }
             }
         }
@@ -139,19 +118,13 @@ pipeline {
                         }
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
-                                web stage
+                                output=$(web stage --json)
+                                productionBundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
+                                web notify "$productionBundleId"
                                 git checkout -- dist
                            '''
                         }
-                        // sh '''
-                        //         output=$(web stage --tag stage_$BUILD_NUMBER)
-                        //         echo "$output"
-                        //         web notify "$bundleId"
-                        //     '''
                     }
-                    sh '''
-                        echo bundle stage else
-                    '''
                 }
             }
         }
@@ -172,7 +145,7 @@ pipeline {
                     ${GIT_COMMIT_MESSAGE}<br />
                     Build URL: ${env.BUILD_URL}<br />
                     Stage Tag: ${STAGE_TAG}<br />
-                    CDN Bundle: https://UIDeploy--StaticContent--${STAGE_TAG}--ghe.preview.dev.paypalinc.com/upstream/bizcomponents/stage?cdn:list<br />
+                    CDN Bundle: ${CDN_BUNDLE}<br />
                     Test Page: ${TEST_URL}${STAGE_TAG}<br />
                     <br />
                     Regards,<br />
