@@ -138,7 +138,7 @@ pipeline {
     post {
         success {
             script {
-                if (BRANCH_NAME === 'release') {
+                if (BRANCH_NAME == 'release') {
                     emailext(
                         mimeType: 'text/html',
                         // Single quotes on this so the variable makes it to the email plugin instead of Jenkins trying to replace
