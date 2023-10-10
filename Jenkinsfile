@@ -68,10 +68,12 @@ pipeline {
                            sh '''
                                 output=$(web stage --json)
                                 stageBundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
-                                web notify "$stageBundleId"
+                                stageBundleURL=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).content)' "$output")
                                 git checkout -- dist
                            '''
                         }
+                        // web notify "$stageBundleId"
+                        sh '${GIT_COMMIT_MESSAGE}'
                     }
                 }
             }
@@ -94,12 +96,12 @@ pipeline {
                            sh '''
                                 output=$(web stage --json)
                                 sandboxBundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
-                                web notify "$sandboxBundleId"
+                                sandboxBundleURL=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).content)' "$output")
                                 git checkout -- dist
                            '''
                         }
                     }
-                    sh '${GIT_COMMIT_MESSAGE}'
+                    // web notify "$sandboxBundleId"
                 }
             }
         }
@@ -110,7 +112,7 @@ pipeline {
             }
             steps {
                 script {
-                    if (GIT_COMMIT_MESSAGE.contains('chore(release):')) {
+                    if (GIT_COMMIT_MESSAGE.contains('test')) {
                         dir('dist/bizcomponents/stage') {
                             deleteDir()
                         }
@@ -121,10 +123,11 @@ pipeline {
                            sh '''
                                 output=$(web stage --json)
                                 productionBundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
-                                web notify "$productionBundleId"
+                                productionBundleURL=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).content)' "$output")
                                 git checkout -- dist
                            '''
                         }
+                        // web notify "$productionBundleId"
                     }
                 }
             }
@@ -134,25 +137,32 @@ pipeline {
     // Send email notification
     post {
         success {
-            emailext(
-                mimeType: 'text/html',
-                // Single quotes on this so the variable makes it to the email plugin instead of Jenkins trying to replace
-                to: '$DEFAULT_RECIPIENTS',
-                subject: "paypal-messaging-components - ${BRANCH_NAME} - Build #${env.BUILD_NUMBER} - SUCCESS!",
-                // The ${FILE} similarly needs to be sent to the plugin to be replaced, so the $ is escaped
-                body: """
-                    Build Succeeded!<br />
-                    <br />
-                    ${GIT_COMMIT_MESSAGE}<br />
-                    Build URL: ${env.BUILD_URL}<br />
-                    Stage Tag: ${STAGE_TAG}<br />
-                    CDN Bundle: ${CDN_BUNDLE}<br />
-                    Test Page: ${TEST_URL}${STAGE_TAG}<br />
-                    <br />
-                    Regards,<br />
-                    Your friendly neighborhood digital butler
-                """
-            )
+            script {
+                if (BRANCH_NAME === 'release') {
+                    emailext(
+                        mimeType: 'text/html',
+                        // Single quotes on this so the variable makes it to the email plugin instead of Jenkins trying to replace
+                        to: '$DEFAULT_RECIPIENTS',
+                        subject: "paypal-messaging-components - ${BRANCH_NAME} - Build #${env.BUILD_NUMBER} - SUCCESS!",
+                        // The ${FILE} similarly needs to be sent to the plugin to be replaced, so the $ is escaped
+                        body: """
+                            Build Succeeded!<br />
+                            <br />
+                            ${GIT_COMMIT_MESSAGE}<br />
+                            Build URL: ${env.BUILD_URL}<br />
+                            Stage Tag: ${STAGE_TAG}<br />
+                            <br />
+                            Stage, Sandbox, and Production assets have been bundled, and are ready to approve and deploy.<br />
+                            Stage CDN Bundle: ${stageBundleURL}<br />
+                            Sandbox CDN Bundle: ${sandboxBundleURL}<br />
+                            Production CDN Bundle: ${productionBundleURL}<br />
+                            <br />
+                            Regards,<br />
+                            Your friendly neighborhood digital butler
+                        """
+                    )
+                }
+            }
         }
     }
 }
