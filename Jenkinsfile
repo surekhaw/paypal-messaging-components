@@ -147,11 +147,8 @@ pipeline {
                     Build URL: ${env.BUILD_URL}<br />
                     Stage Tag: ${STAGE_TAG}<br />
                     <br />
-                    Stage, Sandbox, and Production assets have been bundled, and are ready to approve and deploy.<br />
-                    Stage BundleId: ${stageBundleId}<br />
-                    Sandbox BundleId: ${sandboxBundleId}<br />
-                    Production BundleId: ${productionBundleId}<br />
-                    <br />
+                    Assets have been bundled and ready for review or testing.</ br>
+                    Release assets must be approved and deployed.<br />
                     Regards,<br />
                     Your friendly neighborhood digital butler
                 """
