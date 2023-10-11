@@ -146,9 +146,9 @@ pipeline {
                     ${GIT_COMMIT_MESSAGE}<br />
                     Build URL: ${env.BUILD_URL}<br />
                     Stage Tag: ${STAGE_TAG}<br />
+                    Assets have been bundled and are ready for review or testing.<br />
+                    If release assets, please approve and deploy stage, sandbox, and production respectively.<br />
                     <br />
-                    Assets have been bundled and ready for review or testing.</ br>
-                    Release assets must be approved and deployed.<br />
                     Regards,<br />
                     Your friendly neighborhood digital butler
                 """
