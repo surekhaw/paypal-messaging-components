@@ -26,26 +26,8 @@ pipeline {
                     echo $GIT_COMMIT_MESSAGE
                     node -v
                     npm -v
-                    npm i --reg https://npm.paypal.com -g @paypalcorp/web
+                    npm i --reg ${env.REGISTRY} -g @paypalcorp/web
                 '''
-            }
-        }
-
-        // For non-release, auto-generate a stage build
-        stage('Stage Tag') {
-            when {
-                not {
-                    // branch 'release'
-                    branch 'jenkinsTest'
-                }
-            }
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
-                    sh '''
-                        npm i --reg https://npm.paypal.com
-                        npm run build -- -t $STAGE_TAG -s $TEST_ENV
-                    '''
-                }
             }
         }
 
