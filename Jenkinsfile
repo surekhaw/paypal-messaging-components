@@ -68,7 +68,6 @@ pipeline {
                            sh '''
                                 output=$(web stage --json)
                                 stageBundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
-                                stageBundleURL=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).content)' "$output")
                                 git checkout -- dist
                            '''
                         }
@@ -96,7 +95,6 @@ pipeline {
                            sh '''
                                 output=$(web stage --json)
                                 sandboxBundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
-                                sandboxBundleURL=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).content)' "$output")
                                 git checkout -- dist
                            '''
                         }
@@ -123,7 +121,6 @@ pipeline {
                            sh '''
                                 output=$(web stage --json)
                                 productionBundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
-                                productionBundleURL=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).content)' "$output")
                                 git checkout -- dist
                            '''
                         }
@@ -138,7 +135,7 @@ pipeline {
     post {
         success {
             script {
-                if (BRANCH_NAME == 'release') {
+                if (env.BRANCH_NAME == 'release') {
                     emailext(
                         mimeType: 'text/html',
                         // Single quotes on this so the variable makes it to the email plugin instead of Jenkins trying to replace
@@ -153,9 +150,9 @@ pipeline {
                             Stage Tag: ${STAGE_TAG}<br />
                             <br />
                             Stage, Sandbox, and Production assets have been bundled, and are ready to approve and deploy.<br />
-                            Stage CDN Bundle: ${stageBundleURL}<br />
-                            Sandbox CDN Bundle: ${sandboxBundleURL}<br />
-                            Production CDN Bundle: ${productionBundleURL}<br />
+                            Stage BundleId: ${stageBundleId}<br />
+                            Sandbox BundleId: ${sandboxBundleId}<br />
+                            Production BundleId: ${productionBundleId}<br />
                             <br />
                             Regards,<br />
                             Your friendly neighborhood digital butler
