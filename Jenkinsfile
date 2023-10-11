@@ -7,17 +7,18 @@ pipeline {
         nodejs 'Node18'
     }
 
-    // STAGE_TAG will be {branch_name}_{timestamp}
     environment {
         BRANCH_NAME = sh(returnStdout: true, script: 'echo $GIT_BRANCH | sed "s#origin/##g"').trim()
         GIT_COMMIT_MESSAGE = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
-        // sed commands in order:
-        // remove origin/ from the branch name
-        // replace any hyphens (-) with underscores (_)
-        // shorten to 18 characters to allow space for the timestamp at the end
-        STAGE_TAG = sh(returnStdout: true, script: 'echo $(echo $GIT_BRANCH | sed "s#origin/##g" | sed "s/-/_/g" | sed -e "s/(.{18}).*/$1/g")_$(date +%s)').trim()
+        GIT_COMMIT_HASH = sh(returnStdout: true, script: 'git log -n 1 --pretty=format:%H').slice(0, 8)
+        VERSION = sh(returnStdout: true, script: '
+            if ($GIT_COMMIT_MESSAGE.contains('test') {
+                start=$GIT_COMMIT_MESSAGE.indexOf(':')
+                stop=$GIT_COMMIT_MESSAGE.indexOf('[]')
+                $GIT_COMMIT_MESSAGE.slice(start, stop)
+            })').trim() 
     }
-// test 2
+
     stages {
         stage('Setup') {
             steps {
@@ -33,76 +34,72 @@ pipeline {
 
         // For release, deploy existing build assets
         stage('Bundle Stage') {
-            when {
-                // branch 'release'
-                branch 'jenkinsTest'
-            }
             steps {
                 script {
                     if (GIT_COMMIT_MESSAGE.contains('test')) {
-                        dir('dist/bizcomponents/sandbox') {
-                            deleteDir()
-                        }
-                        dir('dist/bizcomponents/js') {
-                            deleteDir()
-                        }
+                        // dir('dist/bizcomponents/sandbox') {
+                        //     deleteDir()
+                        // }
+                        // dir('dist/bizcomponents/js') {
+                        //     deleteDir()
+                        // }
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
-                                output=$(web stage --json)
-                                stageBundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
+                                rm -rf ./dist/bizcomponents/sandbox
+                                rm -rf ./dist/bizcomponents/js
+                                stageBundleId=up-stage-v$VERSION-$GIT_COMMIT_HASH
+                                output=$(web stage --tag stageBundleId)
                                 git checkout -- dist
                            '''
                         }
+                        // stageBundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
                         // web notify "$stageBundleId"
-                        // sh '${GIT_COMMIT_MESSAGE}'
                     }
                 }
             }
         }
         stage('Bundle Sandbox') {
-            when {
-                // branch 'release'
-                branch 'jenkinsTest'
-            }
             steps {
                 script {
                     if (GIT_COMMIT_MESSAGE.contains('test')) {
-                        dir('dist/bizcomponents/stage') {
-                            deleteDir()
-                        }
-                        dir('dist/bizcomponents/js') {
-                            deleteDir()
-                        }
+                        // dir('dist/bizcomponents/stage') {
+                        //     deleteDir()
+                        // }
+                        // dir('dist/bizcomponents/js') {
+                        //     deleteDir()
+                        // }
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
-                                output=$(web stage --json)
-                                sandboxBundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
+                                rm -rf ./dist/bizcomponents/stage
+                                rm -rf ./dist/bizcomponents/js
+                                $sandboxBundleId=up-sb-v$VERSION-$GIT_COMMIT_HASH
+                                output=$(web stage --tag $sandboxBundleId)
                                 git checkout -- dist
                            '''
                         }
                     }
+                    // sandboxBundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
                     // web notify "$sandboxBundleId"
                 }
             }
         }
         stage('Build Production') {
-            when {
-                // branch 'release'
-                branch 'jenkinsTest'
-            }
             steps {
                 script {
                     if (GIT_COMMIT_MESSAGE.contains('test')) {
-                        dir('dist/bizcomponents/stage') {
-                            deleteDir()
-                        }
-                        dir('dist/bizcomponents/sandbox') {
-                            deleteDir()
-                        }
+                        // dir('dist/bizcomponents/stage') {
+                        //     deleteDir()
+                        // }
+                        // dir('dist/bizcomponents/sandbox') {
+                        //     deleteDir()
+                        // }
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
-                                output=$(web stage --json)
-                                productionBundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
+                                rm -rf ./dist/bizcomponents/stage
+                                rm -rf ./dist/bizcomponents/sandbox
+                                $productionBundleId
+                                output=$(web stage --tag up-stage-v$VERSION-$GIT_COMMIT_HASH)
+                                
                                 git checkout -- dist
                            '''
                         }
@@ -127,9 +124,8 @@ pipeline {
                     <br />
                     ${GIT_COMMIT_MESSAGE}<br />
                     Build URL: ${env.BUILD_URL}<br />
-                    Stage Tag: ${STAGE_TAG}<br />
                     Assets have been bundled and are ready for review or testing.<br />
-                    If release assets, please approve and deploy stage, sandbox, and production respectively.<br />
+                    please approve and deploy stage, sandbox, and production respectively.<br />
                     <br />
                     Regards,<br />
                     Your friendly neighborhood digital butler
