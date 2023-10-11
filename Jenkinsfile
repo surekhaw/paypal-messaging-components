@@ -17,7 +17,7 @@ pipeline {
         // shorten to 18 characters to allow space for the timestamp at the end
         STAGE_TAG = sh(returnStdout: true, script: 'echo $(echo $GIT_BRANCH | sed "s#origin/##g" | sed "s/-/_/g" | sed -e "s/(.{18}).*/$1/g")_$(date +%s)').trim()
     }
-
+// test
     stages {
         stage('Setup') {
             steps {
