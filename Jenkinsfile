@@ -4,7 +4,7 @@ pipeline {
     }
 
     tools {
-        nodejs 'Node12'
+        nodejs 'Node18'
     }
 
     // STAGE_TAG will be {branch_name}_{timestamp}
