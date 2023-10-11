@@ -11,12 +11,7 @@ pipeline {
         BRANCH_NAME = sh(returnStdout: true, script: 'echo $GIT_BRANCH | sed "s#origin/##g"').trim()
         GIT_COMMIT_MESSAGE = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
         GIT_COMMIT_HASH = sh(returnStdout: true, script: 'git log -n 1 --pretty=format:%H').slice(0, 8)
-        VERSION = sh(returnStdout: true, script: '
-            if ($GIT_COMMIT_MESSAGE.contains('test') {
-                start=$GIT_COMMIT_MESSAGE.indexOf(':')
-                stop=$GIT_COMMIT_MESSAGE.indexOf('[]')
-                $GIT_COMMIT_MESSAGE.slice(start, stop)
-            })').trim() 
+        VERSION = sh(returnStdout: true, script: "echo $GIT_COMMIT_MESSAGE | cut -d ':' -f2 | cut -d '[' -f1").trim()
     }
 
     stages {
@@ -97,12 +92,13 @@ pipeline {
                            sh '''
                                 rm -rf ./dist/bizcomponents/stage
                                 rm -rf ./dist/bizcomponents/sandbox
-                                $productionBundleId
-                                output=$(web stage --tag up-stage-v$VERSION-$GIT_COMMIT_HASH)
+                                $productionBundleId=up-stage-v$VERSION-$GIT_COMMIT_HASH
+                                output=$(web stage --tag $productionBundleId)
                                 
                                 git checkout -- dist
                            '''
                         }
+                        // $productionBundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
                         // web notify "$productionBundleId"
                     }
                 }
