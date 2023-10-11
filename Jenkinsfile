@@ -72,7 +72,7 @@ pipeline {
                            '''
                         }
                         // web notify "$stageBundleId"
-                        sh '${GIT_COMMIT_MESSAGE}'
+                        // sh '${GIT_COMMIT_MESSAGE}'
                     }
                 }
             }
