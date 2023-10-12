@@ -39,7 +39,7 @@ pipeline {
                            sh '''
                                 rm -rf ./dist/bizcomponents/sandbox
                                 rm -rf ./dist/bizcomponents/js
-                                stageBundleId=up_stage_v$VERSION_$GIT_COMMIT_HASH
+                                stageBundleId=up_stage_$VERSION_$GIT_COMMIT_HASH
                                 output=$(web stage --tag $stageBundleId)
                                 git checkout -- dist
                            '''
@@ -60,7 +60,7 @@ pipeline {
                            sh '''
                                 rm -rf ./dist/bizcomponents/stage
                                 rm -rf ./dist/bizcomponents/js
-                                sandboxBundleId=up_sb_v$VERSION_$GIT_COMMIT_HASH
+                                sandboxBundleId=up_sb_$VERSION_$GIT_COMMIT_HASH
                                 output=$(web stage --tag $sandboxBundleId)
                                 git checkout -- dist
                            '''
@@ -80,7 +80,7 @@ pipeline {
                                 rm -rf ./dist/bizcomponents/stage
                                 rm -rf ./dist/bizcomponents/sandbox
                                 
-                                productionBundleId=up_prod_v$VERSION_$GIT_COMMIT_HASH
+                                productionBundleId=up_prod_$VERSION_$GIT_COMMIT_HASH
                                 output=$(web stage --tag $productionBundleId)
                                 git checkout -- dist
                            '''
@@ -107,7 +107,7 @@ pipeline {
                     <br />
                     ${GIT_COMMIT_MESSAGE}<br />
                     Build URL: ${env.BUILD_URL}<br />
-                    Version ${VERSION} assets have been bundled and are ready for review or testing.<br />
+                    Version ${env.VERSION} assets have been bundled and are ready for review or testing.<br />
                     Please approve and deploy stage, sandbox, and production respectively.<br />
                     <br />
                     Regards,<br />
