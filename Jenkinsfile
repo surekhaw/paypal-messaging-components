@@ -11,7 +11,8 @@ pipeline {
         BRANCH_NAME = sh(returnStdout: true, script: 'echo $GIT_BRANCH | sed "s#origin/##g"').trim()
         GIT_COMMIT_MESSAGE = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
         GIT_COMMIT_HASH = GIT_COMMIT.take(7)
-        // assumes commit messages follow this format: chore(release): 1.49.1 [skip ci]
+
+        // Assumes commit messages follow this format: chore(release): 1.49.1 [skip ci]
         VERSION = sh(returnStdout: true, script: "echo $GIT_COMMIT_MESSAGE | cut -d ':' -f2 | cut -d '[' -f1").trim()
     }
 
@@ -34,7 +35,7 @@ pipeline {
                 echo "VERSION is '${VERSION}'" 
                 script {
                     if (GIT_COMMIT_MESSAGE.contains('test')) {
-                        // stage tags can only contain alphnumeric characters and underscores
+                        // Stage tags can only contain alphnumeric characters and underscores
                         VERSION=VERSION.replace('.', '_')
                         env.stageBundleId='up_stage_v' + VERSION + '_' + GIT_COMMIT_HASH
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
@@ -45,7 +46,6 @@ pipeline {
                                 git checkout -- dist
                            '''
                         }
-                        // stageBundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
                         // web notify "$stageBundleId"
                     }
                 }
@@ -67,7 +67,6 @@ pipeline {
                            '''
                         }
                     }
-                    // sandboxBundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
                     // web notify "$sandboxBundleId"
                 }
             }
@@ -85,7 +84,6 @@ pipeline {
                                 git checkout -- dist
                            '''
                         }
-                        // $productionBundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
                         // web notify "$productionBundleId"
                     }
                 }
@@ -101,7 +99,6 @@ pipeline {
                 // Single quotes on this so the variable makes it to the email plugin instead of Jenkins trying to replace
                 to: '$DEFAULT_RECIPIENTS',
                 subject: "paypal-messaging-components - ${BRANCH_NAME} - Build #${env.BUILD_NUMBER} - SUCCESS!",
-                // The ${FILE} similarly needs to be sent to the plugin to be replaced, so the $ is escaped
                 body: """
                     Build Succeeded!<br />
                     <br />
@@ -110,9 +107,9 @@ pipeline {
                     <br />
                     Version ${env.VERSION} assets have been bundled and are ready for review.<br />
                     Please approve and deploy: <br />
-                    1. stage: ${BUNDLE_URL}${env.stageBundleId} <br />
-                    2. sandbox: ${BUNDLE_URL}${sandboxBundleId} <br />
-                    3. production ${BUNDLE_URL}${productionBundleId} <br />
+                    1. Stage: ${BUNDLE_URL}${env.stageBundleId} <br />
+                    2. Sandbox: ${BUNDLE_URL}${sandboxBundleId} <br />
+                    3. Production: ${BUNDLE_URL}${productionBundleId} <br />
                     <br />
                     Regards,<br />
                     Your friendly neighborhood digital butler
