@@ -12,7 +12,7 @@ pipeline {
         GIT_COMMIT_MESSAGE = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
         GIT_COMMIT_HASH = GIT_COMMIT.take(7)
         VERSION = sh(returnStdout: true, script: "echo $GIT_COMMIT_MESSAGE | cut -d ':' -f2 | cut -d '[' -f1").trim()
-        VERSION_FORMATTED = sh(returnStdout: true, script: '$VERSION.replaceAll('.', '_')')
+        VERSION_FORMATTED = sh(returnStdout: true, script: "echo $VERSION.replaceAll('.', '_')")
     }
 
     stages {
@@ -110,7 +110,7 @@ pipeline {
                     ${GIT_COMMIT_MESSAGE}<br />
                     Build URL: ${env.BUILD_URL}<br />
                     Version ${VERSION} assets have been bundled and are ready for review or testing.<br />
-                    please approve and deploy stage, sandbox, and production respectively.<br />
+                    Please approve and deploy stage, sandbox, and production respectively.<br />
                     <br />
                     Regards,<br />
                     Your friendly neighborhood digital butler
