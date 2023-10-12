@@ -12,6 +12,7 @@ pipeline {
         GIT_COMMIT_MESSAGE = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
         GIT_COMMIT_HASH = GIT_COMMIT.take(7)
         VERSION = sh(returnStdout: true, script: "echo $GIT_COMMIT_MESSAGE | cut -d ':' -f2 | cut -d '[' -f1").trim()
+        VERSION_FORMATTED="${VERSION.replaceALL('.', '_')}"
     }
 
     stages {
@@ -36,7 +37,7 @@ pipeline {
                            sh '''
                                 rm -rf ./dist/bizcomponents/sandbox
                                 rm -rf ./dist/bizcomponents/js
-                                release_version=$($VERSION.replace('.', '_'))
+                                
                                 stageBundleId=up_stage_v$VERSION_FORMATTED_$GIT_COMMIT_HASH
                                 output=$(web stage --tag $stageBundleId)
                                 git checkout -- dist
@@ -56,7 +57,7 @@ pipeline {
                            sh '''
                                 rm -rf ./dist/bizcomponents/stage
                                 rm -rf ./dist/bizcomponents/js
-                                release_version=$($VERSION.replace('.', '_'))
+                                
                                 sandboxBundleId=up_sb_v$VERSION_FORMATTED_$GIT_COMMIT_HASH
                                 output=$(web stage --tag $sandboxBundleId)
                                 git checkout -- dist
@@ -76,7 +77,7 @@ pipeline {
                            sh '''
                                 rm -rf ./dist/bizcomponents/stage
                                 rm -rf ./dist/bizcomponents/sandbox
-                                release_version=$($VERSION.replace('.', '_'))
+                                
                                 productionBundleId=up_prod_v$VERSION_FORMATTED_$GIT_COMMIT_HASH
                                 output=$(web stage --tag $productionBundleId)
                                 git checkout -- dist
