@@ -32,7 +32,6 @@ pipeline {
         // For release, deploy existing build assets
         stage('Bundle Stage') {
             steps {
-                echo "VERSION is '${VERSION}'" 
                 script {
                     if (GIT_COMMIT_MESSAGE.contains('test')) {
                         // Stage tags can only contain alphnumeric characters and underscores
@@ -49,12 +48,10 @@ pipeline {
                         // web notify "$stageBundleId"
                     }
                 }
-                echo "VERSION is '${VERSION}'" 
             }
         }
         stage('Bundle Sandbox') {
             steps {
-                echo "VERSION is '${VERSION}'" 
                 script {
                     if (GIT_COMMIT_MESSAGE.contains('test')) {
                         env.sandboxBundleId='up_sb_v' + VERSION + '_' + GIT_COMMIT_HASH
