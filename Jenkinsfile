@@ -11,7 +11,7 @@ pipeline {
         BRANCH_NAME = sh(returnStdout: true, script: 'echo $GIT_BRANCH | sed "s#origin/##g"').trim()
         GIT_COMMIT_MESSAGE = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
         GIT_COMMIT_HASH = GIT_COMMIT.take(7)
-        VERSION = sh(returnStdout: true, script: "echo $GIT_COMMIT_MESSAGE | cut -d ':' -f2 | cut -d '[' -f1").trim()
+        VERSION = sh(returnStdout: true, script: "echo $GIT_COMMIT_MESSAGE | cut -d ':' -f2 | cut -d '[' -f1").trim().replaceAll('.', '_')
     }
 
     stages {
@@ -43,7 +43,7 @@ pipeline {
                                 rm -rf ./dist/bizcomponents/sandbox
                                 rm -rf ./dist/bizcomponents/js
                                 stageBundleId=up-stage-v$VERSION-$GIT_COMMIT_HASH
-                                output=$(web stage --tag stageBundleId)
+                                output=$(web stage --tag $stageBundleId)
                                 git checkout -- dist
                            '''
                         }
