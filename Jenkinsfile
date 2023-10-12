@@ -12,7 +12,7 @@ pipeline {
         GIT_COMMIT_MESSAGE = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
         GIT_COMMIT_HASH = GIT_COMMIT.take(7)
         VERSION = sh(returnStdout: true, script: "echo $GIT_COMMIT_MESSAGE | cut -d ':' -f2 | cut -d '[' -f1").trim()
-        VERSION_FORMATTED="${VERSION.replaceALL('.', '_')}"
+        VERSION_FORMATTED="${VERSION.replaceALL('\.', '_')}"
     }
 
     stages {
