@@ -42,10 +42,10 @@ pipeline {
                                 rm -rf ./dist/bizcomponents/sandbox
                                 rm -rf ./dist/bizcomponents/js
                                 output=$(web stage --tag $stageBundleId)
+                                web notify "$stageBundleId"
                                 git checkout -- dist
                            '''
-                        }
-                        // web notify "$stageBundleId"
+                        }                        
                     }
                 }
             }
@@ -60,11 +60,11 @@ pipeline {
                                 rm -rf ./dist/bizcomponents/stage
                                 rm -rf ./dist/bizcomponents/js
                                 output=$(web stage --tag $sandboxBundleId)
+                                web notify "$sandboxBundleId"
                                 git checkout -- dist
                            '''
                         }
                     }
-                    // web notify "$sandboxBundleId"
                 }
             }
         }
@@ -78,10 +78,10 @@ pipeline {
                                 rm -rf ./dist/bizcomponents/stage
                                 rm -rf ./dist/bizcomponents/sandbox
                                 output=$(web stage --tag $productionBundleId)
+                                web notify "$productionBundleId"
                                 git checkout -- dist
                            '''
                         }
-                        // web notify "$productionBundleId"
                     }
                 }
             }
@@ -97,7 +97,7 @@ pipeline {
                 to: '$DEFAULT_RECIPIENTS',
                 subject: "paypal-messaging-components - ${BRANCH_NAME} - Build #${env.BUILD_NUMBER} - SUCCESS!",
                 body: """
-                    testBuild Succeeded!<br />
+                    Build Succeeded!<br />
                     <br />
                     ${GIT_COMMIT_MESSAGE}<br />
                     Build URL: ${BUILD_URL}<br />
