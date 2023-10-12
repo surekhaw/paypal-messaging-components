@@ -12,6 +12,7 @@ pipeline {
         GIT_COMMIT_MESSAGE = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
         GIT_COMMIT_HASH = GIT_COMMIT.take(7)
         VERSION = sh(returnStdout: true, script: "echo $GIT_COMMIT_MESSAGE | cut -d ':' -f2 | cut -d '[' -f1").trim()
+        VERSION_FORMATTED = sh(returnStdout: true, script: '$VERSION.replaceAll('.', '_')')
     }
 
     stages {
@@ -36,12 +37,13 @@ pipeline {
                            sh '''
                                 rm -rf ./dist/bizcomponents/sandbox
                                 rm -rf ./dist/bizcomponents/js
-                                release_version=VERSION.replace('.', '_')
-                                stageBundleId=up_stage_v$release_version_$GIT_COMMIT_HASH
+                                
+                                stageBundleId=up_stage_v$VERSION_FORMATTED_$GIT_COMMIT_HASH
                                 output=$(web stage --tag $stageBundleId)
                                 git checkout -- dist
                            '''
                         }
+                        // release_version=$VERSION.replace('.', '_')
                         // stageBundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
                         // web notify "$stageBundleId"
                     }
@@ -56,13 +58,14 @@ pipeline {
                            sh '''
                                 rm -rf ./dist/bizcomponents/stage
                                 rm -rf ./dist/bizcomponents/js
-                                release_version=VERSION.replace('.', '_')
-                                sandboxBundleId=up_sb_v$release_version_$GIT_COMMIT_HASH
+                                
+                                sandboxBundleId=up_sb_v$VERSION_FORMATTED_$GIT_COMMIT_HASH
                                 output=$(web stage --tag $sandboxBundleId)
                                 git checkout -- dist
                            '''
                         }
                     }
+                    // release_version=$VERSION.replace('.', '_')
                     // sandboxBundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
                     // web notify "$sandboxBundleId"
                 }
@@ -76,13 +79,14 @@ pipeline {
                            sh '''
                                 rm -rf ./dist/bizcomponents/stage
                                 rm -rf ./dist/bizcomponents/sandbox
-                                release_version=VERSION.replace('.', '_')
-                                productionBundleId=up_prod_v$release_version_$GIT_COMMIT_HASH
+                                
+                                productionBundleId=up_prod_v$VERSION_FORMATTED_$GIT_COMMIT_HASH
                                 output=$(web stage --tag $productionBundleId)
                                 
                                 git checkout -- dist
                            '''
                         }
+                        // release_version=$VERSION.replace('.', '_')
                         // $productionBundleId=$(node -e 'console.log(JSON.parse(process.argv.slice(1)).id)' "$output")
                         // web notify "$productionBundleId"
                     }
