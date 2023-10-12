@@ -42,7 +42,7 @@ pipeline {
                            sh '''
                                 rm -rf ./dist/bizcomponents/sandbox
                                 rm -rf ./dist/bizcomponents/js
-                                stageBundleId=up-stage-v$VERSION-$GIT_COMMIT_HASH
+                                stageBundleId=up_stage_v$VERSION_$GIT_COMMIT_HASH
                                 output=$(web stage --tag $stageBundleId)
                                 git checkout -- dist
                            '''
@@ -67,7 +67,7 @@ pipeline {
                            sh '''
                                 rm -rf ./dist/bizcomponents/stage
                                 rm -rf ./dist/bizcomponents/js
-                                sandboxBundleId=up-sb-v$VERSION-$GIT_COMMIT_HASH
+                                sandboxBundleId=up_sb_v$VERSION_$GIT_COMMIT_HASH
                                 output=$(web stage --tag $sandboxBundleId)
                                 git checkout -- dist
                            '''
@@ -92,7 +92,7 @@ pipeline {
                            sh '''
                                 rm -rf ./dist/bizcomponents/stage
                                 rm -rf ./dist/bizcomponents/sandbox
-                                productionBundleId=up-stage-v$VERSION-$GIT_COMMIT_HASH
+                                productionBundleId=up_prod_v$VERSION_$GIT_COMMIT_HASH
                                 output=$(web stage --tag $productionBundleId)
                                 
                                 git checkout -- dist
