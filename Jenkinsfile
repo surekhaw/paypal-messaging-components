@@ -107,12 +107,12 @@ pipeline {
                     <br />
                     ${GIT_COMMIT_MESSAGE}<br />
                     Build URL: ${BUILD_URL}<br />
+                    <br />
                     Version ${env.VERSION} assets have been bundled and are ready for review.<br />
                     Please approve and deploy: <br />
-                    - stage: ${BUNDLE_URL}${env.stageBundleId}, <br />
-                    - sandbox: ${BUNDLE_URL}${sandboxBundleId}, <br />
-                    - production ${BUNDLE_URL}${productionBundleId} <br />
-                    respectively.<br />
+                    1. stage: ${BUNDLE_URL}${env.stageBundleId} <br />
+                    2. sandbox: ${BUNDLE_URL}${sandboxBundleId} <br />
+                    3. production ${BUNDLE_URL}${productionBundleId} <br />
                     <br />
                     Regards,<br />
                     Your friendly neighborhood digital butler
