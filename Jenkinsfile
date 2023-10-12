@@ -35,7 +35,7 @@ pipeline {
                 script {
                     if (GIT_COMMIT_MESSAGE.contains('test')) {
                         VERSION=VERSION.replace('.', '_')
-                        stageBundleId='up_stage_v' + VERSION + '_' + GIT_COMMIT_HASH
+                        env.stageBundleId='up_stage_v' + VERSION + '_' + GIT_COMMIT_HASH
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
                                 rm -rf ./dist/bizcomponents/sandbox
@@ -56,7 +56,7 @@ pipeline {
                 echo "VERSION is '${VERSION}'" 
                 script {
                     if (GIT_COMMIT_MESSAGE.contains('test')) {
-                        sandboxBundleId='up_sb_v' + VERSION + '_' + GIT_COMMIT_HASH
+                        env.sandboxBundleId='up_sb_v' + VERSION + '_' + GIT_COMMIT_HASH
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
                                 rm -rf ./dist/bizcomponents/stage
@@ -75,7 +75,7 @@ pipeline {
             steps {
                 script {
                     if (GIT_COMMIT_MESSAGE.contains('test')) {
-                        productionBundleId='up_prod_v' + VERSION + GIT_COMMIT_HASH
+                        env.productionBundleId='up_prod_v' + VERSION + GIT_COMMIT_HASH
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
                                 rm -rf ./dist/bizcomponents/stage
@@ -106,8 +106,10 @@ pipeline {
                     <br />
                     ${GIT_COMMIT_MESSAGE}<br />
                     Build URL: ${env.BUILD_URL}<br />
-                    Version ${env.VERSION} assets have been bundled and are ready for review or testing.<br />
-                    Please approve and deploy stage, sandbox, and production respectively.<br />
+                    Version ${env.VERSION} assets have been bundled and are ready for review.<br />
+                    Please approve and deploy stage (${env.stageBundleId}), 
+                    sandbox (${env.sandboxBundleId}), and production (${productionBundleId}) 
+                    respectively.<br />
                     <br />
                     Regards,<br />
                     Your friendly neighborhood digital butler
