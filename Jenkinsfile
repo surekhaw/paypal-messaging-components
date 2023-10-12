@@ -11,7 +11,7 @@ pipeline {
         BRANCH_NAME = sh(returnStdout: true, script: 'echo $GIT_BRANCH | sed "s#origin/##g"').trim()
         GIT_COMMIT_MESSAGE = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
         GIT_COMMIT_HASH = GIT_COMMIT.take(7)
-        // assumes commit messages follows this format: chore(release): 1.49.1 [skip ci]
+        // assumes commit messages follow this format: chore(release): 1.49.1 [skip ci]
         VERSION = sh(returnStdout: true, script: "echo $GIT_COMMIT_MESSAGE | cut -d ':' -f2 | cut -d '[' -f1").trim()
     }
 
@@ -34,6 +34,7 @@ pipeline {
                 echo "VERSION is '${VERSION}'" 
                 script {
                     if (GIT_COMMIT_MESSAGE.contains('test')) {
+                        // stage tags can only contain alphnumeric characters and underscores
                         VERSION=VERSION.replace('.', '_')
                         env.stageBundleId='up_stage_v' + VERSION + '_' + GIT_COMMIT_HASH
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
@@ -75,7 +76,7 @@ pipeline {
             steps {
                 script {
                     if (GIT_COMMIT_MESSAGE.contains('test')) {
-                        env.productionBundleId='up_prod_v' + VERSION + GIT_COMMIT_HASH
+                        env.productionBundleId='up_prod_v' + VERSION + '_' + GIT_COMMIT_HASH
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
                                 rm -rf ./dist/bizcomponents/stage
@@ -105,10 +106,12 @@ pipeline {
                     Build Succeeded!<br />
                     <br />
                     ${GIT_COMMIT_MESSAGE}<br />
-                    Build URL: ${env.BUILD_URL}<br />
+                    Build URL: ${BUILD_URL}<br />
                     Version ${env.VERSION} assets have been bundled and are ready for review.<br />
-                    Please approve and deploy stage (${env.stageBundleId}), 
-                    sandbox (${env.sandboxBundleId}), and production (${productionBundleId}) 
+                    Please approve and deploy: <br />
+                    - stage: ${BUNDLE_URL}${env.stageBundleId}, <br />
+                    - sandbox: ${BUNDLE_URL}${sandboxBundleId}, <br />
+                    - production ${BUNDLE_URL}${productionBundleId} <br />
                     respectively.<br />
                     <br />
                     Regards,<br />
