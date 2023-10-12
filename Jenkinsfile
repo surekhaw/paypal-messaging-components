@@ -11,7 +11,7 @@ pipeline {
         BRANCH_NAME = sh(returnStdout: true, script: 'echo $GIT_BRANCH | sed "s#origin/##g"').trim()
         GIT_COMMIT_MESSAGE = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
         GIT_COMMIT_HASH = GIT_COMMIT.take(7)
-        VERSION = sh(returnStdout: true, script: "echo $GIT_COMMIT_MESSAGE | cut -d ':' -f2 | cut -d '[' -f1").trim().replaceAll('.', '_')
+        VERSION = sh(returnStdout: true, script: "echo $GIT_COMMIT_MESSAGE | cut -d ':' -f2 | cut -d '[' -f1").trim()
     }
 
     stages {
@@ -32,17 +32,12 @@ pipeline {
             steps {
                 script {
                     if (GIT_COMMIT_MESSAGE.contains('test')) {
-                        // dir('dist/bizcomponents/sandbox') {
-                        //     deleteDir()
-                        // }
-                        // dir('dist/bizcomponents/js') {
-                        //     deleteDir()
-                        // }
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
                                 rm -rf ./dist/bizcomponents/sandbox
                                 rm -rf ./dist/bizcomponents/js
-                                stageBundleId=up_stage_v$VERSION_$GIT_COMMIT_HASH
+                                release_version=VERSION.replace('.', '_')
+                                stageBundleId=up_stage_v$release_version_$GIT_COMMIT_HASH
                                 output=$(web stage --tag $stageBundleId)
                                 git checkout -- dist
                            '''
@@ -57,17 +52,12 @@ pipeline {
             steps {
                 script {
                     if (GIT_COMMIT_MESSAGE.contains('test')) {
-                        // dir('dist/bizcomponents/stage') {
-                        //     deleteDir()
-                        // }
-                        // dir('dist/bizcomponents/js') {
-                        //     deleteDir()
-                        // }
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
                                 rm -rf ./dist/bizcomponents/stage
                                 rm -rf ./dist/bizcomponents/js
-                                sandboxBundleId=up_sb_v$VERSION_$GIT_COMMIT_HASH
+                                release_version=VERSION.replace('.', '_')
+                                sandboxBundleId=up_sb_v$release_version_$GIT_COMMIT_HASH
                                 output=$(web stage --tag $sandboxBundleId)
                                 git checkout -- dist
                            '''
@@ -82,17 +72,12 @@ pipeline {
             steps {
                 script {
                     if (GIT_COMMIT_MESSAGE.contains('test')) {
-                        // dir('dist/bizcomponents/stage') {
-                        //     deleteDir()
-                        // }
-                        // dir('dist/bizcomponents/sandbox') {
-                        //     deleteDir()
-                        // }
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
                                 rm -rf ./dist/bizcomponents/stage
                                 rm -rf ./dist/bizcomponents/sandbox
-                                productionBundleId=up_prod_v$VERSION_$GIT_COMMIT_HASH
+                                release_version=VERSION.replace('.', '_')
+                                productionBundleId=up_prod_v$release_version_$GIT_COMMIT_HASH
                                 output=$(web stage --tag $productionBundleId)
                                 
                                 git checkout -- dist
@@ -120,7 +105,7 @@ pipeline {
                     <br />
                     ${GIT_COMMIT_MESSAGE}<br />
                     Build URL: ${env.BUILD_URL}<br />
-                    Assets have been bundled and are ready for review or testing.<br />
+                    Version ${VERSION} assets have been bundled and are ready for review or testing.<br />
                     please approve and deploy stage, sandbox, and production respectively.<br />
                     <br />
                     Regards,<br />
