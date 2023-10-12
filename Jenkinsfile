@@ -34,7 +34,7 @@ pipeline {
                 echo "VERSION is '${VERSION}'" 
                 script {
                     if (GIT_COMMIT_MESSAGE.contains('test')) {
-                        VERSION=VERSION.replace('.', '_')}
+                        VERSION=VERSION.replace('.', '_')
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
                                 rm -rf ./dist/bizcomponents/sandbox
