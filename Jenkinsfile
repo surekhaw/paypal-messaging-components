@@ -36,7 +36,7 @@ pipeline {
                            sh '''
                                 rm -rf ./dist/bizcomponents/sandbox
                                 rm -rf ./dist/bizcomponents/js
-                                release_version=$VERSION.replace('.', '_')
+                                release_version=$($VERSION.replace('.', '_'))
                                 stageBundleId=up_stage_v$VERSION_FORMATTED_$GIT_COMMIT_HASH
                                 output=$(web stage --tag $stageBundleId)
                                 git checkout -- dist
@@ -56,7 +56,7 @@ pipeline {
                            sh '''
                                 rm -rf ./dist/bizcomponents/stage
                                 rm -rf ./dist/bizcomponents/js
-                                release_version=$VERSION.replace('.', '_')
+                                release_version=$($VERSION.replace('.', '_'))
                                 sandboxBundleId=up_sb_v$VERSION_FORMATTED_$GIT_COMMIT_HASH
                                 output=$(web stage --tag $sandboxBundleId)
                                 git checkout -- dist
@@ -76,7 +76,7 @@ pipeline {
                            sh '''
                                 rm -rf ./dist/bizcomponents/stage
                                 rm -rf ./dist/bizcomponents/sandbox
-                                release_version=$VERSION.replace('.', '_')
+                                release_version=$($VERSION.replace('.', '_'))
                                 productionBundleId=up_prod_v$VERSION_FORMATTED_$GIT_COMMIT_HASH
                                 output=$(web stage --tag $productionBundleId)
                                 git checkout -- dist
