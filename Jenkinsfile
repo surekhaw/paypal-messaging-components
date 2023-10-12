@@ -11,8 +11,8 @@ pipeline {
         BRANCH_NAME = sh(returnStdout: true, script: 'echo $GIT_BRANCH | sed "s#origin/##g"').trim()
         GIT_COMMIT_MESSAGE = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
         GIT_COMMIT_HASH = GIT_COMMIT.take(7)
+        // assumes commit messages follows this format: chore(release): 1.49.1 [skip ci]
         VERSION = sh(returnStdout: true, script: "echo $GIT_COMMIT_MESSAGE | cut -d ':' -f2 | cut -d '[' -f1").trim()
-        // VERSION_FORMATTED="${VERSION.toString().replaceAll('.', '_')}"
     }
 
     stages {
@@ -39,7 +39,7 @@ pipeline {
                            sh '''
                                 rm -rf ./dist/bizcomponents/sandbox
                                 rm -rf ./dist/bizcomponents/js
-                                stageBundleId=up_stage_$VERSION_$GIT_COMMIT_HASH
+                                stageBundleId=up_stage_${VERSION}_$GIT_COMMIT_HASH
                                 output=$(web stage --tag $stageBundleId)
                                 git checkout -- dist
                            '''
@@ -60,7 +60,7 @@ pipeline {
                            sh '''
                                 rm -rf ./dist/bizcomponents/stage
                                 rm -rf ./dist/bizcomponents/js
-                                sandboxBundleId=up_sb_$VERSION_$GIT_COMMIT_HASH
+                                sandboxBundleId=up_sb_${VERSION}_$GIT_COMMIT_HASH
                                 output=$(web stage --tag $sandboxBundleId)
                                 git checkout -- dist
                            '''
@@ -80,7 +80,7 @@ pipeline {
                                 rm -rf ./dist/bizcomponents/stage
                                 rm -rf ./dist/bizcomponents/sandbox
                                 
-                                productionBundleId=up_prod_$VERSION_$GIT_COMMIT_HASH
+                                productionBundleId=up_prod_${VERSION}_$GIT_COMMIT_HASH
                                 output=$(web stage --tag $productionBundleId)
                                 git checkout -- dist
                            '''
