@@ -12,7 +12,7 @@ pipeline {
         GIT_COMMIT_MESSAGE = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
         GIT_COMMIT_HASH = GIT_COMMIT.take(7)
         VERSION = sh(returnStdout: true, script: "echo $GIT_COMMIT_MESSAGE | cut -d ':' -f2 | cut -d '[' -f1").trim()
-        VERSION_FORMATTED="${VERSION.toString().replaceAll('.', '_')}"
+        // VERSION_FORMATTED="${VERSION.toString().replaceAll('.', '_')}"
     }
 
     stages {
@@ -31,14 +31,14 @@ pipeline {
         // For release, deploy existing build assets
         stage('Bundle Stage') {
             steps {
+                echo "VERSION is '${VERSION}'" 
                 script {
                     if (GIT_COMMIT_MESSAGE.contains('test')) {
+                        VERSION=VERSION.replace('.', '_')}
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
                                 rm -rf ./dist/bizcomponents/sandbox
                                 rm -rf ./dist/bizcomponents/js
-                                echo $VERSION
-                                echo $VERSION_FORMATTED
                                 stageBundleId=up_stage_v$VERSION_FORMATTED_$GIT_COMMIT_HASH
                                 output=$(web stage --tag $stageBundleId)
                                 git checkout -- dist
@@ -48,6 +48,7 @@ pipeline {
                         // web notify "$stageBundleId"
                     }
                 }
+                echo "VERSION is '${VERSION}'" 
             }
         }
         stage('Bundle Sandbox') {
