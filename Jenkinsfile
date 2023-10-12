@@ -39,7 +39,7 @@ pipeline {
                            sh '''
                                 rm -rf ./dist/bizcomponents/sandbox
                                 rm -rf ./dist/bizcomponents/js
-                                stageBundleId=up_stage_v$VERSION_FORMATTED_$GIT_COMMIT_HASH
+                                stageBundleId=up_stage_v$VERSION_$GIT_COMMIT_HASH
                                 output=$(web stage --tag $stageBundleId)
                                 git checkout -- dist
                            '''
@@ -53,14 +53,14 @@ pipeline {
         }
         stage('Bundle Sandbox') {
             steps {
+                echo "VERSION is '${VERSION}'" 
                 script {
                     if (GIT_COMMIT_MESSAGE.contains('test')) {
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
                                 rm -rf ./dist/bizcomponents/stage
                                 rm -rf ./dist/bizcomponents/js
-                                
-                                sandboxBundleId=up_sb_v$VERSION_FORMATTED_$GIT_COMMIT_HASH
+                                sandboxBundleId=up_sb_v$VERSION_$GIT_COMMIT_HASH
                                 output=$(web stage --tag $sandboxBundleId)
                                 git checkout -- dist
                            '''
@@ -80,7 +80,7 @@ pipeline {
                                 rm -rf ./dist/bizcomponents/stage
                                 rm -rf ./dist/bizcomponents/sandbox
                                 
-                                productionBundleId=up_prod_v$VERSION_FORMATTED_$GIT_COMMIT_HASH
+                                productionBundleId=up_prod_v$VERSION_$GIT_COMMIT_HASH
                                 output=$(web stage --tag $productionBundleId)
                                 git checkout -- dist
                            '''
