@@ -34,7 +34,7 @@ pipeline {
             steps {
                 script {
                     if (GIT_COMMIT_MESSAGE.contains('test')) {
-                        // Stage tags can only contain alphnumeric characters and underscores
+                        // stage Stage tags can only contain alphnumeric characters and underscores
                         VERSION=VERSION.replace('.', '_')
                         env.stageBundleId='up_stage_v' + VERSION + '_' + GIT_COMMIT_HASH
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
