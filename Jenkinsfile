@@ -32,28 +32,19 @@ pipeline {
                 script {
                     if (GIT_COMMIT_MESSAGE.contains('chore(release)')) {
                         // Assumes commit messages follow this format: chore(release): 1.49.1 [skip ci]
-                        // Stage tags can only contain alphnumeric characters and underscores
-                        // env.VERSION=GIT_COMMIT_MESSAGE.matches(/\:(.*?)\[/)
                         env.VERSION=GIT_COMMIT_MESSAGE.replaceAll(".*\\:|\\[.*", "");
-                        sh '''
-                            echo $VERSION
-                        '''
+                        // Stage tags can only contain alphnumeric characters and underscores
                         env.VERSION=VERSION.replace('.', '_').trim();
-                        sh '''
-                            echo $VERSION
-                        '''
-                        // .replace(/\:\]/, '')
                         env.stageBundleId='up_stage_v' + VERSION + '_' + GIT_COMMIT_HASH
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
                                 rm -rf ./dist/bizcomponents/sandbox
                                 rm -rf ./dist/bizcomponents/js
                                 output=$(web stage --tag $stageBundleId)
-                                
+                                web notify "$stageBundleId"
                                 git checkout -- dist
                            '''
                         }   
-                        // web notify "$stageBundleId"                     
                     }
                 }
             }
@@ -68,11 +59,10 @@ pipeline {
                                 rm -rf ./dist/bizcomponents/stage
                                 rm -rf ./dist/bizcomponents/js
                                 output=$(web stage --tag $sandboxBundleId)
-                                
+                                web notify "$sandboxBundleId"
                                 git checkout -- dist
                            '''
                         }
-                        // web notify "$sandboxBundleId"
                     }
                 }
             }
@@ -87,11 +77,10 @@ pipeline {
                                 rm -rf ./dist/bizcomponents/stage
                                 rm -rf ./dist/bizcomponents/sandbox
                                 output=$(web stage --tag $productionBundleId)
-                                
+                                web notify "$productionBundleId"
                                 git checkout -- dist
                            '''
                         }
-                        // web notify "$productionBundleId"
                     }
                 }
             }
