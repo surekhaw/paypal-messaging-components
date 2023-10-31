@@ -13,7 +13,8 @@ pipeline {
         GIT_COMMIT_HASH = GIT_COMMIT.take(7)
 
         // Assumes commit messages follow this format: chore(release): 1.49.1 [skip ci]
-        VERSION = sh(returnStdout: true, script: "echo $GIT_COMMIT_MESSAGE | cut -d ':' -f2 | cut -d '[' -f1").trim()
+        MODIFIED_GIT_COMMIT_MESSAGE = $GIT_COMMIT_MESSAGE.replaceAll(/\(\)/, '');
+        VERSION = sh(returnStdout: true, script: "echo $MODIFIED_GIT_COMMIT_MESSAGE | cut -d ':' -f2 | cut -d '[' -f1").trim()
     }
 
     stages {
@@ -23,6 +24,7 @@ pipeline {
                 sh '''
                     echo $GIT_COMMIT_MESSAGE
                     echo $GIT_COMMIT_HASH
+                    echo MODIFIED_GIT_COMMIT_MESSAGE
                     echo $VERSION
                     node -v
                     npm -v
