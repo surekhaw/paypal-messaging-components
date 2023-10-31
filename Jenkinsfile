@@ -13,7 +13,7 @@ pipeline {
         GIT_COMMIT_HASH = GIT_COMMIT.take(7)
 
         // Assumes commit messages follow this format: chore(release): 1.49.1 [skip ci]
-        VERSION = sh(returnStdout: true, script: "echo $MODIFIED_GIT_COMMIT_MESSAGE").trim()
+        VERSION = sh(returnStdout: true, script: "echo $GIT_COMMIT_MESSAGE")
     }
 
     stages {
@@ -37,7 +37,7 @@ pipeline {
                 script {
                     if (GIT_COMMIT_MESSAGE.contains('chore(release)')) {
                         // Stage tags can only contain alphnumeric characters and underscores
-                        VERSION=VERSION.match(/\:(.*?)\[/).replace('.', '_').trim();
+                        VERSION=VERSION.match(/\:(.*?)\[/).replace(/\:\]/, '')replace('.', '_').trim();
                         env.stageBundleId='up_stage_v' + VERSION + '_' + GIT_COMMIT_HASH
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
