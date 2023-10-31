@@ -10,10 +10,10 @@ pipeline {
     environment {
         BRANCH_NAME = sh(returnStdout: true, script: 'echo $GIT_BRANCH | sed "s#origin/##g"').trim()
         GIT_COMMIT_MESSAGE = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
-        GIT_COMMIT_HASH = GIT_COMMIT.take(7)
+        // GIT_COMMIT_HASH = GIT_COMMIT.take(7)
 
         // Assumes commit messages follow this format: chore(release): 1.49.1 [skip ci]
-        VERSION = sh(returnStdout: true, script: "echo $GIT_COMMIT_MESSAGE | cut -d ':' -f2 | cut -d '[' -f1").trim()
+        // VERSION = sh(returnStdout: true, script: "echo $GIT_COMMIT_MESSAGE | cut -d ':' -f2 | cut -d '[' -f1").trim()
     }
 
     stages {
@@ -33,8 +33,8 @@ pipeline {
         stage('Bundle Stage') {
             steps {
                 script {
-                    if (GIT_COMMIT_MESSAGE.contains('test')) {
-                        // stage Stage tags can only contain alphnumeric characters and underscores
+                    if (GIT_COMMIT_MESSAGE.contains('chore(release)')) {
+                        // Stage tags can only contain alphnumeric characters and underscores
                         VERSION=VERSION.replace('.', '_')
                         env.stageBundleId='up_stage_v' + VERSION + '_' + GIT_COMMIT_HASH
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
@@ -53,7 +53,7 @@ pipeline {
         stage('Bundle Sandbox') {
             steps {
                 script {
-                    if (GIT_COMMIT_MESSAGE.contains('test')) {
+                    if (GIT_COMMIT_MESSAGE.contains('chore(release)')) {
                         env.sandboxBundleId='up_sb_v' + VERSION + '_' + GIT_COMMIT_HASH
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
@@ -71,7 +71,7 @@ pipeline {
         stage('Build Production') {
             steps {
                 script {
-                    if (GIT_COMMIT_MESSAGE.contains('test')) {
+                    if (GIT_COMMIT_MESSAGE.contains('chore(release)')) {
                         env.productionBundleId='up_prod_v' + VERSION + '_' + GIT_COMMIT_HASH
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
                            sh '''
@@ -104,7 +104,7 @@ pipeline {
                     <br />
                     Version ${env.VERSION} assets have been bundled and are ready for review.<br />
                     Please approve and deploy: <br />
-                    1. Stage: ${BUNDLE_URL}${env.stageBundleId} <br />
+                    1. Stage: ${BUNDLE_URL}${stageBundleId} <br />
                     2. Sandbox: ${BUNDLE_URL}${sandboxBundleId} <br />
                     3. Production: ${BUNDLE_URL}${productionBundleId} <br />
                     <br />
