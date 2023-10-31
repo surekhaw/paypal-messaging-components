@@ -10,7 +10,7 @@ pipeline {
     environment {
         BRANCH_NAME = sh(returnStdout: true, script: 'echo $GIT_BRANCH | sed "s#origin/##g"').trim()
         GIT_COMMIT_MESSAGE = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
-        // GIT_COMMIT_HASH = GIT_COMMIT.take(7)
+        GIT_COMMIT_HASH = GIT_COMMIT.take(7)
 
         // Assumes commit messages follow this format: chore(release): 1.49.1 [skip ci]
         // VERSION = sh(returnStdout: true, script: "echo $GIT_COMMIT_MESSAGE | cut -d ':' -f2 | cut -d '[' -f1").trim()
@@ -22,6 +22,7 @@ pipeline {
                 checkout scm
                 sh '''
                     echo $GIT_COMMIT_MESSAGE
+                    echo $GIT_COMMIT_HASH
                     node -v
                     npm -v
                     npm i --reg $REGISTRY -g @paypalcorp/web
@@ -42,10 +43,11 @@ pipeline {
                                 rm -rf ./dist/bizcomponents/sandbox
                                 rm -rf ./dist/bizcomponents/js
                                 output=$(web stage --tag $stageBundleId)
-                                web notify "$stageBundleId"
+                                
                                 git checkout -- dist
                            '''
-                        }                        
+                        }   
+                        // web notify "$stageBundleId"                     
                     }
                 }
             }
@@ -60,10 +62,11 @@ pipeline {
                                 rm -rf ./dist/bizcomponents/stage
                                 rm -rf ./dist/bizcomponents/js
                                 output=$(web stage --tag $sandboxBundleId)
-                                web notify "$sandboxBundleId"
+                                
                                 git checkout -- dist
                            '''
                         }
+                        // web notify "$sandboxBundleId"
                     }
                 }
             }
@@ -78,10 +81,11 @@ pipeline {
                                 rm -rf ./dist/bizcomponents/stage
                                 rm -rf ./dist/bizcomponents/sandbox
                                 output=$(web stage --tag $productionBundleId)
-                                web notify "$productionBundleId"
+                                
                                 git checkout -- dist
                            '''
                         }
+                        // web notify "$productionBundleId"
                     }
                 }
             }
