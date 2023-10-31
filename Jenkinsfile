@@ -19,7 +19,6 @@ pipeline {
                 checkout scm
                 sh '''
                     echo $GIT_COMMIT_MESSAGE
-                    echo $GIT_COMMIT_HASH
                     node -v
                     npm -v
                     npm i --reg $REGISTRY -g @paypalcorp/web
@@ -34,7 +33,8 @@ pipeline {
                     if (GIT_COMMIT_MESSAGE.contains('chore(release)')) {
                         // Assumes commit messages follow this format: chore(release): 1.49.1 [skip ci]
                         // Stage tags can only contain alphnumeric characters and underscores
-                        env.VERSION=GIT_COMMIT_MESSAGE.matches(/\:(.*?)\[/)
+                        // env.VERSION=GIT_COMMIT_MESSAGE.matches(/\:(.*?)\[/)
+                        env.VERSION=GIT_COMMIT_MESSAGE.replaceAll(".*\\:|\\[.*", "");
                         sh '''
                             echo $VERSION
                         '''
