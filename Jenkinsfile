@@ -34,7 +34,14 @@ pipeline {
                     if (GIT_COMMIT_MESSAGE.contains('chore(release)')) {
                         // Assumes commit messages follow this format: chore(release): 1.49.1 [skip ci]
                         // Stage tags can only contain alphnumeric characters and underscores
-                        env.VERSION=GIT_COMMIT_MESSAGE.matches(/\:(.*?)\[/).replace('.', '_').trim();
+                        env.VERSION=GIT_COMMIT_MESSAGE.matches(/\:(.*?)\[/)
+                        sh '''
+                            echo $VERSION
+                        '''
+                        env.VERSION=VERSION.replace('.', '_').trim();
+                        sh '''
+                            echo $VERSION
+                        '''
                         // .replace(/\:\]/, '')
                         env.stageBundleId='up_stage_v' + VERSION + '_' + GIT_COMMIT_HASH
                         withCredentials([usernamePassword(credentialsId: 'web-cli-creds', passwordVariable: 'SVC_ACC_PASSWORD', usernameVariable: 'SVC_ACC_USERNAME')]) {
