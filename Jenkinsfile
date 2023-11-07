@@ -11,6 +11,8 @@ pipeline {
         BRANCH_NAME = sh(returnStdout: true, script: 'echo $GIT_BRANCH | sed "s#origin/##g"').trim()
         GIT_COMMIT_MESSAGE = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
         GIT_COMMIT_HASH = GIT_COMMIT.take(7)
+        INDEX_1 = GIT_COMMIT_MESSAGE.indexOf(':')
+        INDEX_2 = GIT_COMMIT_MESSAGE.indexOf('[')
     }
 
     stages {
@@ -19,6 +21,8 @@ pipeline {
                 checkout scm
                 sh '''
                     echo $GIT_COMMIT_MESSAGE
+                    echo $INDEX_1
+                    echo $INDEX_2
                     node -v
                     npm -v
                     npm i --reg $REGISTRY -g @paypalcorp/web
