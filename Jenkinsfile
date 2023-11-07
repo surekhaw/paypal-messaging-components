@@ -37,7 +37,7 @@ pipeline {
                         // Assumes commit messages follow this format: chore(release): 1.49.1 [skip ci]
                         // env.VERSION=GIT_COMMIT_MESSAGE.replaceAll(".*\\:|\\[.*", "");
                         // include only version number section of string
-                        env.VERSION=VERSION.substring(VERSION.indexOf(':') + 1, VERSION.indexOf('['))
+                        env.VERSION=GIT_COMMIT_MESSAGE.substring(VERSION.indexOf(':') + 1, VERSION.indexOf('['))
                         // Stage tags can only contain alphnumeric characters and underscores
                         env.VERSION=VERSION.replace('.', '_').trim();
                         env.stageBundleId='up_stage_v' + VERSION + '_' + GIT_COMMIT_HASH
