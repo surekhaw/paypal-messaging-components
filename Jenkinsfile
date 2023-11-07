@@ -11,8 +11,6 @@ pipeline {
         BRANCH_NAME = sh(returnStdout: true, script: 'echo $GIT_BRANCH | sed "s#origin/##g"').trim()
         GIT_COMMIT_MESSAGE = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
         GIT_COMMIT_HASH = GIT_COMMIT.take(7)
-        INDEX_1 = GIT_COMMIT_MESSAGE.indexOf(':')
-        INDEX_2 = GIT_COMMIT_MESSAGE.indexOf('[')
     }
 
     stages {
@@ -21,7 +19,6 @@ pipeline {
                 checkout scm
                 sh '''
                     echo $GIT_COMMIT_MESSAGE
-                    echo $GIT_COMMIT_HASH
                     node -v
                     npm -v
                     npm i --reg $REGISTRY -g @paypalcorp/web
@@ -34,9 +31,7 @@ pipeline {
             steps {
                 script {
                     if (GIT_COMMIT_MESSAGE.contains('chore(release)')) {
-                        // Assumes commit messages follow this format: chore(release): 1.49.1 [skip ci]
-                        // env.VERSION=GIT_COMMIT_MESSAGE.replaceAll(".*\\:|\\[.*", "");
-                        // include only version number section of string
+                        // include only version number section of commit message
                         env.VERSION=GIT_COMMIT_MESSAGE.substring(GIT_COMMIT_MESSAGE.indexOf(':') + 1, GIT_COMMIT_MESSAGE.indexOf('['))
                         // Stage tags can only contain alphnumeric characters and underscores
                         env.VERSION=VERSION.replace('.', '_').trim();
