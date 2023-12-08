@@ -78,7 +78,7 @@ export const LongTerm = ({
         linkToProductList,
         cta
     },
-    useV4Design,
+    productMeta: { useV4Design },
     openProductList
 }) => {
     const [expandedState, setExpandedState] = useState(false);

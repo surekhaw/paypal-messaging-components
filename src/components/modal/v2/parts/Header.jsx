@@ -83,7 +83,7 @@ const Header = ({
                     </p>
                 ) : (
                     <p
-                        className={`subheadline_p subheadline-${countryClassName}}`}
+                        className={`subheadline_p subheadline-${countryClassName}`}
                         // eslint-disable-next-line react/no-danger
                         dangerouslySetInnerHTML={{ __html: currencyFormat(subheadline) ?? '' }}
                     />

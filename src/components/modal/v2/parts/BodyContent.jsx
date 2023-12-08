@@ -57,7 +57,7 @@ const BodyContent = () => {
 
     const { headline, subheadline, qualifyingSubheadline = '', closeButtonLabel } = content;
     const isQualifying = productMeta?.qualifying;
-    const useV4Design = productMeta?.useV4Design === 'true';
+    const useV4Design = productMeta?.useV4Design;
 
     const openProductList = () => setViewName(VIEW_IDS.PRODUCT_LIST);
 
@@ -84,7 +84,7 @@ const BodyContent = () => {
     const viewComponents = {
         [VIEW_IDS.PAYPAL_CREDIT_NO_INTEREST]: <NoInterest content={content} openProductList={openProductList} />,
         [VIEW_IDS.PAY_LATER_LONG_TERM]: (
-            <LongTerm content={content} useV4Design={useV4Design} openProductList={openProductList} />
+            <LongTerm content={content} productMeta={productMeta} openProductList={openProductList} />
         ),
         [VIEW_IDS.PAY_LATER_PAY_IN_1]: <PayIn1 content={content} openProductList={openProductList} />,
         [VIEW_IDS.PAY_LATER_SHORT_TERM]: (
@@ -106,6 +106,7 @@ const BodyContent = () => {
                 qualifyingSubheadline={qualifyingSubheadline}
                 closeButtonLabel={closeButtonLabel}
                 viewName={viewName}
+                useV4Design={useV4Design}
             />
             <div className="content__container">
                 <main className="main">
