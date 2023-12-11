@@ -8,7 +8,8 @@ import {
     useXProps,
     useScroll,
     useDidUpdateEffect,
-    useTransitionState
+    useTransitionState,
+    isLander
 } from '../lib';
 import Header from './Header';
 import { LongTerm, ShortTerm, NoInterest, ProductList, PayIn1 } from './views';
@@ -57,7 +58,13 @@ const BodyContent = () => {
 
     const { headline, subheadline, qualifyingSubheadline = '', closeButtonLabel } = content;
     const isQualifying = productMeta?.qualifying;
-    const useV4Design = productMeta?.useV4Design;
+    const useV4Design = productMeta?.useV4Design === 'true';
+
+    // add v4Design class to root html to update lander specific styles to v4
+    const documentClassName = document.documentElement.className;
+    if (useV4Design && isLander) {
+        document.documentElement.className = `${documentClassName} v4Design`;
+    }
 
     const openProductList = () => setViewName(VIEW_IDS.PRODUCT_LIST);
 

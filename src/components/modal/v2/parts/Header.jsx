@@ -64,7 +64,11 @@ const Header = ({
                     </button>
                 )}
                 <div className="header__fixed-wrapper header__fixed-wrapper--front">
-                    <div className="header__background-wrapper header__background-wrapper--sticky" />
+                    <div
+                        className={`header__background-wrapper header__background-wrapper--sticky ${
+                            useV4Design ? 'v4Design' : ''
+                        }`}
+                    />
                 </div>
             </div>
             <div className="header__content">
