@@ -174,7 +174,7 @@ const Calculator = ({ setExpandedState, calculator, aprDisclaimer, useV4Design }
 
     return (
         <div className="calculator">
-            <form className={`form ${useV4Design ? 'v4Design' : ''}`} onSubmit={submit}>
+            <form className={`form ${useV4Design === 'true' ? 'v4Design' : ''}`} onSubmit={submit}>
                 <h4 className="title">{title}</h4>
                 <div className="input__wrapper transitional">
                     <div className={`input__label ${country}`}>{renderInputLabelOnEmptyField(country)}</div>

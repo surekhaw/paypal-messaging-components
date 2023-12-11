@@ -13,7 +13,11 @@ const Instructions = ({ instructions, expandedState = false, className = '', use
 
     return (
         <div className="content__row instructions">
-            <ol className={(`${expandedState ? '' : 'collapsed'}`, className, `${useV4Design ? 'v4Design' : ''}`)}>
+            <ol
+                className={
+                    (`${expandedState ? '' : 'collapsed'}`, className, `${useV4Design === 'true' ? 'v4Design' : ''}`)
+                }
+            >
                 {instructions.map((instruction, index) => {
                     return (
                         <li className="instructions__item-wrapper">
