@@ -38,7 +38,11 @@ const Header = ({
     return (
         <Fragment>
             <div aria-hidden="true" className="header__fixed-wrapper header__fixed-wrapper--front">
-                <div className="header__background-wrapper header__background-wrapper--gradient" />
+                <div
+                    className={`header__background-wrapper header__background-wrapper--gradient ${
+                        useV4Design ? 'v4Design' : ''
+                    }`}
+                />
             </div>
             <div aria-hidden="true" className="header__fixed-wrapper">
                 <div className={`header__background-wrapper ${useV4Design ? 'v4Design' : ''}`} />
