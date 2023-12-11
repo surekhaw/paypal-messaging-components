@@ -108,7 +108,7 @@ const BodyContent = () => {
                 viewName={viewName}
                 useV4Design={useV4Design}
             />
-            <div className="content__container">
+            <div className={`content__container ${useV4Design ? 'v4Design' : ''}`}>
                 <main className="main">
                     <div className="content__body">{viewComponents[viewName]}</div>
                 </main>

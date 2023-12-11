@@ -36,13 +36,19 @@
         @include lander {
             border-radius: 0;
         }
+
+        .v4Design {
+            // @include mobile {
+                background-color: $v4-lander-gray;
+            // }
+        }
     }
 
     &__background-wrapper {
         overflow: hidden;
         height: 25rem; // Needs to be tall enough to seamlessly flow behind the main body content
         max-height: 85vh; // Prevent it from bleeding below on small height tablet views
-        background-color: $beige;
+        background-color: $beige;    
 
         // We have multiple backgrounds to give the appearance of
         // reserving space at the top of the modal when scrolling.
