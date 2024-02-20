@@ -8,14 +8,16 @@ import { EVENT } from '@krakenjs/zoid/src';
 
 import { createTitleGenerator, viewportHijack } from '../../../utils';
 
-const TRANSITION_DELAY = 300;
 const getTitle = createTitleGenerator();
 
-export default ({ uid, frame, prerenderFrame, doc, event, state, props: { cspNonce }, context }) => {
+export default ({ uid, frame, prerenderFrame, doc, event, state, props: { cspNonce, features }, context }) => {
     // We render the modal as a popup when attempting to render the modal inside another IFrame.
     // In this scenario we can skip creating container elements and transitions since we
     // cannot overlay across the entire screen
     if (context === 'popup') return undefined;
+
+    const TRANSITION_DELAY = features === 'new-checkout-design' ? 100 : 300;
+    const transitionPercent = features === 'new-checkout-design' ? 0 : 5;
 
     const [hijackViewport, replaceViewport] = viewportHijack();
 
@@ -30,6 +32,7 @@ export default ({ uid, frame, prerenderFrame, doc, event, state, props: { cspNon
 
         const handleShow = () => {
             state.open = true;
+            state.previousFocus = document.activeElement;
             wrapper.classList.remove(CLASS.HIDDEN);
             hijackViewport();
             // Browser needs to repaint otherwise the transition happens immediately
@@ -37,6 +40,11 @@ export default ({ uid, frame, prerenderFrame, doc, event, state, props: { cspNon
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
                     overlay.classList.add(CLASS.MODAL_SHOW);
+                    if (state.renderedModal && window.document.activeElement !== frame) {
+                        frame.focus();
+                    } else if (window.document.activeElement !== prerenderFrame) {
+                        prerenderFrame.focus();
+                    }
                 });
             });
         };
@@ -47,6 +55,7 @@ export default ({ uid, frame, prerenderFrame, doc, event, state, props: { cspNon
             replaceViewport();
             setTimeout(() => {
                 wrapper.classList.add(CLASS.HIDDEN);
+                state.previousFocus.focus();
             }, TRANSITION_DELAY);
         };
 
@@ -57,11 +66,18 @@ export default ({ uid, frame, prerenderFrame, doc, event, state, props: { cspNon
         };
 
         const handleTransition = () => {
+            state.renderedModal = true;
             ZalgoPromise.delay(TRANSITION_DELAY)
                 .then(() => overlay.classList.add(CLASS.TRANSITION))
                 .then(() => ZalgoPromise.delay(TRANSITION_DELAY))
-                .then(() => destroyElement(prerenderFrame));
+                .then(() => destroyElement(prerenderFrame))
+                .then(() => {
+                    if (state.open && document.activeElement !== frame) {
+                        frame.focus();
+                    }
+                });
         };
+
         // When the show function was called before zoid had a chance to render
         if (state.open) {
             handleShow();
@@ -102,13 +118,17 @@ export default ({ uid, frame, prerenderFrame, doc, event, state, props: { cspNon
                         ${fullScreen('fixed')}
                     }
 
-                    #${uid} > div.${CLASS.MODAL_SHOW} {
-                        background: rgba(108, 115, 120, 0.85);
+                    ${
+                        features !== 'new-checkout-design'
+                            ? `#${uid} > div.${CLASS.MODAL_SHOW} {
+                                background: rgba(108, 115, 120, 0.85);
+                            }`
+                            : ''
                     }
 
                     #${uid} > div > iframe {
                         transition: all ${TRANSITION_DELAY}ms;
-                        transform: translateY(5%);
+                        transform: translateY(${transitionPercent}%);
                         opacity: 0;
                     }
 

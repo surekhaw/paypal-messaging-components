@@ -17,7 +17,7 @@ import {
     getSessionID,
     getGlobalState,
     getCurrentTime,
-    writeToLocalStorage,
+    updateStorage,
     getOrCreateDeviceID,
     getStageTag,
     getFeatures,
@@ -88,6 +88,12 @@ export default createGlobalVariableGetter('__paypal_credit_message__', () =>
                 required: false,
                 value: validate.placement
             },
+            pageType: {
+                type: 'string',
+                queryParam: 'page_type',
+                required: false,
+                value: validate.pageType
+            },
             style: {
                 type: 'object',
                 serialization: 'json',
@@ -126,6 +132,12 @@ export default createGlobalVariableGetter('__paypal_credit_message__', () =>
                 required: false,
                 value: validate.ecToken
             },
+            contextualComponents: {
+                type: 'string',
+                queryParam: 'contextual_components',
+                required: false,
+                value: validate.contextualComponents
+            },
             // Callbacks
             onClick: {
                 type: 'function',
@@ -134,17 +146,7 @@ export default createGlobalVariableGetter('__paypal_credit_message__', () =>
                     const { onClick } = props;
 
                     return ({ meta }) => {
-                        const {
-                            modal,
-                            index,
-                            account,
-                            merchantId,
-                            currency,
-                            amount,
-                            buyerCountry,
-                            onApply,
-                            getContainer
-                        } = props;
+                        const { modal, index, account, merchantId, currency, amount, buyerCountry, onApply } = props;
                         const { offerType, offerCountry, messageRequestId } = meta;
 
                         // Avoid spreading message props because both message and modal
@@ -160,10 +162,7 @@ export default createGlobalVariableGetter('__paypal_credit_message__', () =>
                             offerCountry,
                             refId: messageRequestId,
                             refIndex: index,
-                            src: 'message_click',
-                            onClose: () => {
-                                getContainer().querySelector('iframe').focus();
-                            }
+                            src: 'message_click'
                         });
 
                         logger.track({
@@ -225,7 +224,7 @@ export default createGlobalVariableGetter('__paypal_credit_message__', () =>
                         // We still want to write it here to handle the scenario where the SDK has never been loaded
                         // and thus the inner iframe has no value for deviceID until after the first message render
                         const tsCookie = typeof ts !== 'undefined' ? ts : getTsCookieFromStorage();
-                        writeToLocalStorage({ ts: tsCookie });
+                        updateStorage({ ts: tsCookie });
 
                         logger.addMetaBuilder(existingMeta => {
                             // Remove potential existing meta info
@@ -480,7 +479,7 @@ export default createGlobalVariableGetter('__paypal_credit_message__', () =>
                 type: 'string',
                 queryParam: 'features',
                 required: false,
-                value: getFeatures
+                value: validate.features ?? getFeatures
             }
         }
     })
