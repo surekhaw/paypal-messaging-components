@@ -1,7 +1,7 @@
 import arrayIncludes from 'core-js-pure/stable/array/includes';
 import numberIsNaN from 'core-js-pure/stable/number/is-nan';
 import stringStartsWith from 'core-js-pure/stable/string/starts-with';
-import { logger, memoize, getEnv, getPageType } from '../../../utils';
+import { logger, memoize, getEnv } from '../../../utils';
 import { OFFER } from '../../../utils/constants';
 
 export const Types = {
@@ -188,30 +188,14 @@ export default {
 
         return undefined;
     },
-    placement: ({ props: { placement } }) => {
-        if (typeof placement !== 'undefined') {
-            const options = ['home', 'category', 'product', 'cart', 'payment', 'product-list'];
-
-            if (!validateType(Types.STRING, placement)) {
-                logInvalidType('placement', Types.STRING, placement);
-            } else if (!arrayIncludes(options, placement)) {
-                logInvalidOption('placement', options, placement);
-            } else {
-                return placement;
-            }
-        }
-
-        return undefined;
-    },
     pageType: ({ props: { pageType } }) => {
-        const sdkPageType = getPageType();
-        if (sdkPageType) {
-            return sdkPageType;
-        }
         if (typeof pageType !== 'undefined') {
             const options = [
                 'home',
                 'category',
+                'product',
+                'payment',
+                'product-list',
                 'product-listing',
                 'search-results',
                 'product-details',
@@ -292,30 +276,38 @@ export default {
         return undefined;
     },
     contextualComponents: ({ props: { contextualComponents } }) => {
-        if (typeof contextualComponents !== 'undefined') {
-            if (!validateType(Types.STRING, contextualComponents)) {
-                logInvalidType('contextualComponents', Types.STRING, contextualComponents);
-                return undefined;
-            }
+        // Return early if contextualComponents is undefined
+        if (typeof contextualComponents === 'undefined') {
+            return undefined;
+        }
 
-            // contextualComponent values can either be a single string value or a comma-separated string of values
-            const typesArray = contextualComponents.toUpperCase().split(',');
+        let typesArray;
 
-            // Check if values are of the same type (all buttons or all marks)
-            const allButtons = typesArray.every(type => type.endsWith('_BUTTON'));
-            const allMarks = typesArray.every(type => type.endsWith('_MARK'));
+        // Normalize input to an array
+        if (Array.isArray(contextualComponents)) {
+            typesArray = contextualComponents.map(component => component.toUpperCase());
+        } else if (typeof contextualComponents === 'string') {
+            typesArray = contextualComponents.toUpperCase().split(',');
+        } else {
+            logInvalidType('contextualComponents', 'STRING or ARRAY', contextualComponents);
+            return undefined;
+        }
 
-            if (!allButtons && !allMarks) {
-                logInvalidCombination(
-                    'contextualComponents',
-                    "Expected all contextualComponents values to be either of type 'button' or 'mark'",
-                    contextualComponents
-                );
-            } else if (typesArray.filter(type => type.endsWith('_MARK')).length > 1) {
-                logInvalid('contextualComponents', 'Ensure only one type of mark value is provided.');
-            } else {
-                return contextualComponents.toUpperCase().split(',').sort().join(',');
-            }
+        // Check if values are of the same type (all buttons or all marks)
+        const allButtons = typesArray.every(type => type.endsWith('_BUTTON'));
+        const allMarks = typesArray.every(type => type.endsWith('_MARK'));
+
+        if (!allButtons && !allMarks) {
+            logInvalidCombination(
+                'contextualComponents',
+                "Expected all contextualComponents values to be either of type 'button' or 'mark'",
+                contextualComponents
+            );
+        } else if (typesArray.filter(type => type.endsWith('_MARK')).length > 1) {
+            logInvalid('contextualComponents', 'Ensure only one type of mark value is provided.');
+        } else {
+            // Return the sorted array of components joined by commas, converted to uppercase
+            return typesArray.sort().join(',');
         }
 
         return undefined;
