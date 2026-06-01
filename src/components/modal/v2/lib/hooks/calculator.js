@@ -48,6 +48,8 @@ export default function useCalculator({ autoSubmit = false } = {}) {
     const serverData = useServerData();
     const { views, country, setServerData } = serverData;
 
+    // From views retrieved, find language meta attribute if it exists, otherwise default to 'undefined' string to avoid issues with languageMeta function
+    const languageMeta = views[0]?.meta?.language || 'undefined';
     // From the views retreived, find and return the view with an offers property (i.e. PAY_LATER_LONG_TERM) if there is one.
     const viewWithOffers = views.find(view => view?.offers);
 
@@ -77,8 +79,8 @@ export default function useCalculator({ autoSubmit = false } = {}) {
     } = useXProps();
 
     const [state, dispatch] = useReducer(reducer, {
-        inputValue: localize(amount, country, 2),
-        prevValue: localize(amount, country, 2),
+        inputValue: localize(amount, country, 2, languageMeta),
+        prevValue: localize(amount, country, 2, languageMeta),
         view: viewWithOffers,
         isLoading: false
     });
@@ -152,13 +154,13 @@ export default function useCalculator({ autoSubmit = false } = {}) {
             // provided could be a value resulted from JavaScript math where the value has floating point
             // precision issues (e.g. 100.000000000001)
             Math.abs(viewWithOffersAmount - amount) < 0.01 &&
-            Math.abs(delocalize(state.inputValue, country) - amount) >= 0.01
+            Math.abs(delocalize(state.inputValue, country, languageMeta) - amount) >= 0.01
         ) {
             dispatch({
                 type: 'view',
                 data: {
                     ...viewWithOffers,
-                    formattedAmount: localize(`${viewWithOffersAmount}`, country, 2),
+                    formattedAmount: localize(`${viewWithOffersAmount}`, country, 2, languageMeta),
                     autoSubmit: false
                 }
             });
